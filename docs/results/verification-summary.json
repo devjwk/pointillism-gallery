@@ -1,0 +1,42 @@
+{
+  "schema_version": "public-verification-summary/1",
+  "recorded_at_utc": "2026-10-21T22:10:38.224Z",
+  "runtime_commit": "eb83333d7922d420e79daad00388e9d4cec26766",
+  "readme_only_revision": true,
+  "javascript": {
+    "command": "node --test --test-reporter=tap tests/js/*.test.mjs",
+    "tests": 29,
+    "passed": 29,
+    "failed": 0
+  },
+  "python_cli": {
+    "command": "python3 -m unittest discover -s tests/python -p test_batch_stdlib.py",
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "scope": "standard-library CLI tests; no model inference"
+  },
+  "migration": {
+    "source_files": 22,
+    "baseline_commit": "0dab2fe2b49e02780b90915f979aa0484ad25084",
+    "combined_script_sha256": "fca34affc8a51f97b5e689aede2bf23200b167f11d44f4e58455e59e6545f080",
+    "byte_identical_to_original": true
+  },
+  "deployment_smoke": {
+    "recorded_for_runtime_commit": "eb83333",
+    "gallery_artworks": 4,
+    "synthetic_points": 60000,
+    "synthetic_finite": true,
+    "public_runtime_files_checked": 6,
+    "public_files_exactly_matched": true,
+    "photo_inference_on_public_host_tested": false
+  },
+  "not_run": [
+    "9 NumPy-dependent CPU geometry tests",
+    "full SAM3D/SAM2/LaMa GPU integration",
+    "multi-image perceptual study",
+    "ground-truth 3D accuracy",
+    "mobile real-device performance"
+  ],
+  "interpretation": "Unit tests and synthetic rendering verify technical behavior, not photo reconstruction quality or performance superiority"
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="560" viewBox="0 0 1400 560" role="img" aria-labelledby="title desc"><title id="title">형태를 읽고, 공간을 점으로 잇다</title><desc id="desc">내장 작품 4개: 회화 3개와 공개 예시 사진 1개. 자동 테스트는 JavaScript 29개와 Python CLI 10개. 현재 사진 변환 범위는 2.5D. 구현·실행 확인과 미검증 목표를 구분합니다.</desc><style>text{font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;fill:#f1efe9;font-weight:400}.serif{font-family:'Noto Serif KR', 'AppleMyungjo', 'Batang', serif;font-weight:500}.muted{fill:#b9b7b2}.rule{stroke:#343434;stroke-width:1;fill:none}</style><rect width="1400" height="560" fill="#000000"/>
+<text x="64" y="69" font-size="26" class="muted">프로젝트 현황</text>
+<text x="64" y="147" font-size="52" class="serif">형태를 읽고, 공간을 점으로 잇다</text>
+<path d="M64 195H1336" class="rule"/>
+<path d="M488 239V430 M912 239V430" class="rule"/>
+<text x="64" y="328" font-size="94" class="serif">4</text>
+<text x="64" y="380" font-size="29">내장 작품</text>
+<text x="64" y="421" font-size="24" class="muted">회화 3 + 공개 예시 사진 1</text>
+<text x="530" y="328" font-size="88" class="serif">29 + 10</text>
+<text x="530" y="380" font-size="29">자동 테스트</text>
+<text x="530" y="421" font-size="24" class="muted">JS 29 + Python CLI 10</text>
+<text x="954" y="328" font-size="94" class="serif">2.5D</text>
+<text x="954" y="380" font-size="29">현재 사진 변환 범위</text>
+<path d="M64 469H1336" class="rule"/>
+<text x="64" y="518" font-size="26" class="muted">구현·실행 확인과 미검증 목표를 구분합니다.</text></svg>

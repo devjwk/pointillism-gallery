@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="650" viewBox="0 0 1400 650" role="img" aria-labelledby="title desc"><title id="title">참조 시점에서 기록한 픽셀 차이</title><desc id="desc">실사진 1장, 같은 메쉬, 8,000점, 시드 42. 0에서 255 범위 sRGB 픽셀의 평균 절대 오차 MAE. 표면 면적 균일 62.19287787543403, 원본 시점 투영 가중 43.412882486979164. 낮을수록 원본 픽셀에 가깝습니다. 지각 품질·3D 정확도 점수가 아닙니다. 단일 사진·단일 시드 관측값으로 일반적 우수성을 주장하지 않습니다.</desc><style>text{font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;fill:#f1efe9;font-weight:400}.serif{font-family:'Noto Serif KR', 'AppleMyungjo', 'Batang', serif;font-weight:500}.muted{fill:#b9b7b2}.rule{stroke:#343434;stroke-width:1;fill:none}</style><rect width="1400" height="650" fill="#000000"/>
+<text x="64" y="90" font-size="50" class="serif">참조 시점에서 기록한 픽셀 차이</text>
+<text x="64" y="140" font-size="26" class="muted">실사진 1장 · 같은 메쉬 · 8,000점 · 시드 42</text>
+<path d="M64 178H1336" class="rule"/>
+<text x="64" y="222" font-size="24" class="muted">MAE · 0–255 sRGB 오차</text>
+<text x="64" y="294" font-size="28">표면 면적 균일</text>
+<text x="64" y="384" font-size="28">원본 시점 투영 가중</text>
+<g class="rule"><path d="M420 249V425 M645 249V425 M870 249V425 M1095 249V425 M1320 249V425"/></g>
+<rect x="420" y="267" width="699.6698760986328" height="34" fill="#777773"/>
+<rect x="420" y="357" width="488.3949279785156" height="34" fill="#f1efe9"/>
+<text x="1137.6698760986328" y="295" font-size="32">62.19</text>
+<text x="926.3949279785156" y="385" font-size="32">43.41</text>
+<path d="M420 435H1320 M420 435V443 M645 435V443 M870 435V443 M1095 435V443 M1320 435V443" class="rule"/>
+<g font-size="24" class="muted" text-anchor="middle"><text x="420" y="476" class="muted">0</text><text x="645" y="476" class="muted">20</text><text x="870" y="476" class="muted">40</text><text x="1095" y="476" class="muted">60</text><text x="1320" y="476" class="muted">80</text></g>
+<path d="M64 512H1336" class="rule"/>
+<text x="64" y="559" font-size="24" class="muted">낮을수록 원본 픽셀에 가깝습니다. 지각 품질·3D 정확도 점수가 아닙니다.</text>
+<text x="64" y="603" font-size="24" class="muted">단일 사진·단일 시드 관측값으로 일반적 우수성을 주장하지 않습니다.</text></svg>

@@ -1,0 +1,113 @@
+{
+  "schema_version": "public-visible-surface-pilot/1",
+  "recorded_at_utc": "2026-10-21T20:55:50.556Z",
+  "scope": "single-photo visible-surface technical pilot; not a 3D reconstruction benchmark",
+  "sample_count": 1,
+  "sampling_seed": 42,
+  "source_photo": "withheld; no filename, input hash, pixels or scene included",
+  "depth_model": {
+    "model": "onnx-community/depth-anything-v2-small",
+    "dtype": "q8",
+    "execution": "browser-local; photo not uploaded"
+  },
+  "completion_scope": "visible_surface_only",
+  "hidden_surfaces_generated": false,
+  "camera_assumed": true,
+  "geometry": {
+    "vertices": 49152,
+    "triangles": 96277,
+    "rejectedTriangles": 1133,
+    "triangleKeepFraction": 0.9883687506416179,
+    "maxAnalyticReprojectionErrorPixels": 0.00016890851669084173,
+    "meaning": "This checks the camera construction, not accuracy of predicted depth or unseen geometry."
+  },
+  "image_evaluation": {
+    "width": 192,
+    "height": 256,
+    "space": "sRGB channel values 0–255; same reference crop",
+    "interpretation": "Pixel differences, not perceptual quality or ground-truth 3D accuracy"
+  },
+  "frames": [
+    {
+      "kind": "surface",
+      "point_budget": 8000,
+      "actual_points": 8000,
+      "policy": "fixed_reference_projected_area",
+      "diameter_css": 7.0188522253033065,
+      "finite": true,
+      "mae_rgb255": 11.385443793402779,
+      "rmse_rgb255": 24.35127551362813
+    },
+    {
+      "kind": "dots",
+      "point_budget": 4000,
+      "actual_points": 4000,
+      "policy": "fixed_reference_projected_area",
+      "diameter_css": 9.926156009316516,
+      "finite": true,
+      "mae_rgb255": 45.098673502604164,
+      "rmse_rgb255": 74.72097147761816
+    },
+    {
+      "kind": "dots",
+      "point_budget": 8000,
+      "actual_points": 8000,
+      "policy": "fixed_reference_projected_area",
+      "diameter_css": 7.0188522253033065,
+      "finite": true,
+      "mae_rgb255": 43.412882486979164,
+      "rmse_rgb255": 72.54343223577773
+    },
+    {
+      "kind": "dots",
+      "point_budget": 16000,
+      "actual_points": 16000,
+      "policy": "fixed_reference_projected_area",
+      "diameter_css": 4.963078004658258,
+      "finite": true,
+      "mae_rgb255": 42.6231689453125,
+      "rmse_rgb255": 71.23839947290931
+    },
+    {
+      "kind": "dots",
+      "point_budget": 8000,
+      "actual_points": 8000,
+      "policy": "surface_area",
+      "diameter_css": 7.0188522253033065,
+      "finite": true,
+      "mae_rgb255": 62.19287787543403,
+      "rmse_rgb255": 93.06282409925795
+    }
+  ],
+  "stability": {
+    "rotation": [
+      {
+        "degrees": 30,
+        "points_unchanged": true
+      },
+      {
+        "degrees": -30,
+        "points_unchanged": true
+      },
+      {
+        "degrees": 180,
+        "points_unchanged": true
+      }
+    ],
+    "reload_same_points": true,
+    "reload_network_requests_observed": 0
+  },
+  "local_conversion": {
+    "browser_button_tested": true,
+    "upload_requests_observed": 0
+  },
+  "gpu_inference_run": false,
+  "limitations": [
+    "Only one real photo and one sampling seed were inspected.",
+    "Reference image differences are not perceptual scores or ground-truth 3D accuracy.",
+    "Camera FOV/depth scale are assumptions.",
+    "Backside and occluded background completion remain untested and require a one-time compatible GPU run.",
+    "Point diameter changes with budget; budget comparisons do not isolate point count alone.",
+    "The source photo is withheld, so independent reproduction of these photo-specific values is not provided."
+  ]
+}
