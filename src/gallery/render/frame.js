@@ -2,7 +2,8 @@
 //  프레임 루프: 움직임이 없으면 그리지 않는다 (절전)
 // =====================================================================
 let drawnFrames = 0, fpsStamp = performance.now();
-const LIM = () => S.limit ? { yaw: 0.95, pitch: 0.6 } : { yaw: 1.5, pitch: 1.1 };
+// 제한 모드에만 적용합니다. 자유 회전은 각도를 정규화할 뿐 상한을 두지 않습니다.
+const LIM = () => ({ yaw: 0.95, pitch: 0.6 });
 function softK(a, lim) { const t = Math.abs(a) / lim; return t < 0.6 ? 1 : Math.max(0.12, 1 - (t - 0.6) / 0.5); }
 function frame() {
   requestAnimationFrame(frame);
@@ -26,7 +27,7 @@ function frame() {
       if (ep > 0) S.vpitch -= Math.sign(S.pitch) * ep * 0.06;
     }
     if (Math.abs(S.vyaw) > 1e-4 || Math.abs(S.vpitch) > 1e-4) {
-      S.yaw = clamp(S.yaw + S.vyaw, -L.yaw*1.1, L.yaw*1.1); S.pitch = clamp(S.pitch + S.vpitch, -L.pitch*1.1, L.pitch*1.1);
+      rotateCamera(S.yaw + S.vyaw, S.pitch + S.vpitch, 1.1);
       S.vyaw *= 0.92; S.vpitch *= 0.92; camMoving = true;
     }
   } else {

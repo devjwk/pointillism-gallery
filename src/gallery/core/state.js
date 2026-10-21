@@ -15,7 +15,7 @@ const S = {
   cur: -1, mode: 'scatter', seq: 0,
   n: 0, nBase: 0, nSkirt: 0, aspect: 1, boxFrac: 0.88,
   yaw: 0, pitch: 0, vyaw: 0, vpitch: 0, zoom: 1, zoomT: 1,
-  dragging: false, interacted: false, sway: !REDUCED_MOTION, lastMove: 0, invert: false, limit: true,
+  dragging: false, interacted: false, sway: !REDUCED_MOTION, lastMove: 0, invert: false, limit: false,
   mouse: { on: false, x: 0, y: 0, pow: 0 },
   sel: -1, selPow: 0, lockId: -1, lineView: false, pan: { x: 0, y: 0, z: 0 }, panT: { x: 0, y: 0, z: 0 }, nLine: 0,
   endTime: 0, statusPending: false, dirty: true, err: null,

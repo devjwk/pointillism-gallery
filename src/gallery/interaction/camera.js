@@ -1,13 +1,31 @@
 // --- 시점 조작 ---
 //  PC: 드래그 회전 / 휠·트랙패드 핀치 확대 / 더블클릭 초기화 / 키보드
 //  모바일: 한 손가락 회전 / 두 손가락 핀치 확대 / 두 번 탭 초기화
+// 360° 경계를 넘어도 같은 방향으로 이어지며, 큰 누적 각도로 인한 정밀도 손실을 막습니다.
+function constrainRotationAngle(angle, limit = null) {
+  return limit === null ? Math.atan2(Math.sin(angle), Math.cos(angle)) : clamp(angle, -limit, limit);
+}
+function rotateCamera(yaw, pitch, margin = 1) {
+  const limits = LIM();
+  S.yaw = constrainRotationAngle(yaw, S.limit ? limits.yaw * margin : null);
+  S.pitch = constrainRotationAngle(pitch, S.limit ? limits.pitch * margin : null);
+}
+function setRotationMode(limited) {
+  S.limit = !!limited; S.vyaw = 0; S.vpitch = 0;
+  rotateCamera(S.yaw, S.pitch);
+  const button = document.getElementById('bLimit');
+  button.textContent = S.limit ? '회전: 제한' : '회전: 360° 자유';
+  button.setAttribute('aria-pressed', String(S.limit));
+  button.title = S.limit ? '회전 범위를 제한합니다. 클릭하면 상하좌우 360° 자유 회전으로 바꿉니다.' : '상하좌우 360° 자유 회전 중입니다. 클릭하면 회전 범위를 제한합니다.';
+  S.dirty = true;
+}
 let lastPt = null, downPt = null, pinch = null, lastTap = { t: 0, x: 0, y: 0 };
 const ptrs = new Map();
 const hintEl = document.getElementById('hint');
 function hideHint() { if (TOUCH) hintEl.classList.add('gone'); }
 hintEl.textContent = TOUCH
-  ? '아래에서 작품을 골라 보세요 · 한 손가락: 회전 · 두 손가락: 확대 · 두 번 탭: 초기화'
-  : '클릭: 모으기 · 드래그: 회전 · 휠: 확대 · 더블클릭: 초기화 · 스페이스 · H 패널 · F 전체화면';
+  ? '아래에서 작품을 골라 보세요 · 한 손가락: 360° 회전 · 두 손가락: 확대 · 두 번 탭: 초기화'
+  : '클릭: 모으기 · 드래그: 360° 회전 · 휠: 확대 · 더블클릭: 초기화 · 스페이스 · H 패널 · F 전체화면';
 if (TOUCH) setTimeout(hideHint, 9000);
 stage.addEventListener('pointerdown', e => {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -40,8 +58,11 @@ stage.addEventListener('pointermove', e => {
   if (downPt && Math.hypot(e.clientX - downPt.x, e.clientY - downPt.y) > 4) S.interacted = true;
   const dx = e.clientX - lastPt.x, dy = e.clientY - lastPt.y, L = LIM(), K = PROFILE.sens;
   lastPt = { x: e.clientX, y: e.clientY };
-  S.yaw = clamp(S.yaw - dx*K*(S.limit ? softK(S.yaw, L.yaw) : 1), -L.yaw*1.1, L.yaw*1.1);
-  S.pitch = clamp(S.pitch + dy*K*(S.limit ? softK(S.pitch, L.pitch) : 1), -L.pitch*1.1, L.pitch*1.1);
+  rotateCamera(
+    S.yaw - dx*K*(S.limit ? softK(S.yaw, L.yaw) : 1),
+    S.pitch + dy*K*(S.limit ? softK(S.pitch, L.pitch) : 1),
+    1.1
+  );
   S.vyaw = clamp(-dx*K, -0.05, 0.05); S.vpitch = clamp(dy*K, -0.05, 0.05); S.lastMove = performance.now();
 });
 stage.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') { S.mouse.on = false; S.dirty = true; } });
@@ -77,12 +98,12 @@ document.getElementById('bMap').addEventListener('click', e => {
 document.addEventListener('keydown', e => {
   if (e.target.closest && e.target.closest('input, textarea')) return;
   if (e.metaKey || e.ctrlKey || e.altKey) return;
-  const step = 0.09, L = LIM(); let hit = true; const k = e.key;
+  const step = 0.09; let hit = true; const k = e.key;
   const onBtn = !!(e.target.closest && e.target.closest('button, summary'));
-  if (k === 'ArrowLeft') { S.interacted = true; S.yaw = clamp(S.yaw - step, -L.yaw, L.yaw); }
-  else if (k === 'ArrowRight') { S.interacted = true; S.yaw = clamp(S.yaw + step, -L.yaw, L.yaw); }
-  else if (k === 'ArrowUp') { S.interacted = true; S.pitch = clamp(S.pitch - step, -L.pitch, L.pitch); }
-  else if (k === 'ArrowDown') { S.interacted = true; S.pitch = clamp(S.pitch + step, -L.pitch, L.pitch); }
+  if (k === 'ArrowLeft') { S.interacted = true; rotateCamera(S.yaw - step, S.pitch); }
+  else if (k === 'ArrowRight') { S.interacted = true; rotateCamera(S.yaw + step, S.pitch); }
+  else if (k === 'ArrowUp') { S.interacted = true; rotateCamera(S.yaw, S.pitch - step); }
+  else if (k === 'ArrowDown') { S.interacted = true; rotateCamera(S.yaw, S.pitch + step); }
   else if (k === '+' || k === '=') S.zoomT = clamp(S.zoomT * 1.15, 0.5, 2.6);
   else if (k === '-' || k === '_') S.zoomT = clamp(S.zoomT / 1.15, 0.5, 2.6);
   else if (k === '0') resetView();

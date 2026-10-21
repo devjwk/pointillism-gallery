@@ -57,7 +57,7 @@ document.getElementById('bToggle').addEventListener('click', () => startMove(S.m
 document.getElementById('bRotate').addEventListener('click', () => { if (S.cur < 0) return; ART[S.cur].rotation = (ART[S.cur].rotation+1) % 4; rebuild(true, false); });
 document.getElementById('bTone').addEventListener('click', () => { setTone(!S.params.invertTone); rebuild(true, false); });
 document.getElementById('bInvert').addEventListener('click', () => { S.invert = !S.invert; retargetDepth(); });
-document.getElementById('bLimit').addEventListener('click', e => { S.limit = !S.limit; e.target.textContent = '회전 제한: ' + (S.limit ? '켜짐' : '꺼짐'); S.dirty = true; });
+document.getElementById('bLimit').addEventListener('click', () => setRotationMode(!S.limit));
 document.getElementById('bUpload').addEventListener('click', () => document.getElementById('file').click());
 document.getElementById('file').addEventListener('change', e => {
   const f = e.target.files[0]; if (!f) return;

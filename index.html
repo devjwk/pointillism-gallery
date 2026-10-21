@@ -77,7 +77,7 @@
       <button class="b" id="bLine">선 분석 보기</button>
       <button class="b" id="bView">시점 초기화</button>
       <button class="b" id="bTone">명암 반전: 꺼짐</button>
-      <button class="b" id="bLimit">회전 제한: 켜짐</button>
+      <button class="b" id="bLimit" aria-pressed="false" title="상하좌우 360° 자유 회전 중입니다. 클릭하면 회전 범위를 제한합니다.">회전: 360° 자유</button>
       <button class="b" id="bMap">깊이맵 숨기기</button>
       <button class="b" id="bInvert">깊이 반전</button>
       <button class="b" id="bRotate">90° 회전</button>
@@ -89,7 +89,7 @@
     <p class="credit"><a class="validation-link" href="./tools/scene-validation/" target="_blank" rel="noopener">서브 검증 도구 · 장면의 결 열기</a></p>
     <p class="credit">작품 이미지: Wikimedia Commons (퍼블릭 도메인). 깊이는 Depth Anything V2 (small)로 추정.</p>
   </aside>
-  <main id="stage" tabindex="0" aria-label="점묘 3D 뷰어. 드래그로 회전, 휠로 확대, 화살표 키로 회전">
+  <main id="stage" tabindex="0" aria-label="점묘 3D 뷰어. 드래그와 화살표 키로 상하좌우 360도 회전, 휠로 확대">
     <canvas id="cv"></canvas>
     <button id="panelOpen" type="button" title="패널 열기 (H)" aria-label="패널 열기">&#9776;</button>
     <div id="caption" aria-live="polite"><h2></h2><p></p></div>
