@@ -1,13 +1,30 @@
 // =====================================================================
 //  WebGL renderer: 이동/곡선/3D 투영/초점 흐림/마우스 반응을 GPU 셰이더에서 계산
 // =====================================================================
+// 같은 점의 phase/noise를 재사용하므로 밀집도를 되돌리면 같은 배치로 돌아옵니다.
+function densitySpread(density, width, height) {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return 0;
+  const value = Number.isFinite(density) ? Math.min(1, Math.max(0, density)) : 1;
+  return (1 - value) * Math.min(width, height) * 0.12;
+}
+function densityOffset(phase, noise, spread, out = [0, 0, 0]) {
+  const turn = noise * Math.PI * 2;
+  out[0] = Math.sin(phase + turn) * spread;
+  out[1] = Math.cos(phase * 2 + turn) * spread;
+  out[2] = Math.sin(phase * 3 - turn) * spread * 0.35;
+  return out;
+}
 const VS = `
 attribute vec3 a_from; attribute vec3 a_to; attribute vec4 a_anim; attribute vec4 a_misc; attribute vec3 a_col;
-uniform float u_time, u_form, u_pass, u_size, u_glow, u_zoom, u_dpr, u_dof, u_mpow, u_sel, u_selpow, u_line, u_lineview, u_color, u_sat, u_chan, u_split;
+uniform float u_time, u_form, u_pass, u_size, u_glow, u_zoom, u_dpr, u_dof, u_mpow, u_sel, u_selpow, u_line, u_lineview, u_color, u_sat, u_chan, u_split, u_spread;
 uniform vec3 u_pan;
 uniform vec2 u_half; uniform vec2 u_mouse; uniform vec4 u_cam;
 varying float v_a; varying float v_pass; varying float v_soft; varying vec3 v_col; varying float v_chan;
 const float F = 1500.0;
+vec3 densityOffset3(float ph, float zr, float amount) {
+  float turn = zr * 6.28318530718;
+  return vec3(sin(ph + turn), cos(ph * 2.0 + turn), sin(ph * 3.0 - turn) * 0.35) * amount;
+}
 void main() {
   float p = clamp((u_time - a_anim.x) / a_anim.y, 0.0, 1.0);
   float e = p < 0.5 ? 4.0*p*p*p : 1.0 - pow(-2.0*p + 2.0, 3.0) / 2.0;
@@ -21,6 +38,8 @@ void main() {
   pos.x += sin(u_time*(0.6 + zr) + ph) * a2;
   pos.y += cos(u_time*(0.5 + zr*0.8) + ph*1.3) * a2;
   pos.z += sin(u_time*0.7 + ph*2.0) * a2 * 0.8;
+  // e=0에서는 출발 위치에 이미 반영된 흩어짐을 다시 더하지 않습니다.
+  if (u_form > 0.5 && u_spread > 0.0) pos += densityOffset3(ph, zr, u_spread * e);
   pos -= u_pan;                                  // 확대할 지점을 화면 중심으로
   float x1 = pos.x*u_cam.x + pos.z*u_cam.y;
   float z1 = -pos.x*u_cam.y + pos.z*u_cam.x;
@@ -95,7 +114,7 @@ function initGL() {
   ['a_from', 'a_to', 'a_anim', 'a_misc', 'a_col'].forEach((n, i) => gl.bindAttribLocation(GLP, i, n));
   gl.linkProgram(GLP);
   if (!gl.getProgramParameter(GLP, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(GLP));
-  ['u_time','u_form','u_pass','u_size','u_glow','u_zoom','u_dpr','u_dof','u_mpow','u_sel','u_selpow','u_line','u_lineview','u_color','u_sat','u_chan','u_split','u_pan','u_half','u_mouse','u_cam'].forEach(n => GLU[n] = gl.getUniformLocation(GLP, n));
+  ['u_time','u_form','u_pass','u_size','u_glow','u_zoom','u_dpr','u_dof','u_mpow','u_sel','u_selpow','u_line','u_lineview','u_color','u_sat','u_chan','u_split','u_spread','u_pan','u_half','u_mouse','u_cam'].forEach(n => GLU[n] = gl.getUniformLocation(GLP, n));
   ['from','to','anim','misc','col'].forEach(k => GLB[k] = gl.createBuffer());
   gl.enable(gl.BLEND);
   return true;
@@ -128,6 +147,9 @@ function uploadMotion() {
 // CPU에서 현재 위치가 필요할 때 GPU 셰이더와 같은 수식으로 계산
 function snapshot(now) {
   const time = now / 1000, form = S.mode === 'form';
+  const box = form && !S.flat ? imageBox() : null;
+  const spread = box ? densitySpread(S.density, box.w, box.h) : 0;
+  const offset = [0, 0, 0];
   for (let i=0;i<S.n;i++) {
     const p = clamp((now - S.t0[i]) / S.dur[i], 0, 1), e = ease(p);
     const toX = form ? S.tx[i] : S.sx[i], toY = form ? S.ty[i] : S.sy[i], toZ = form ? S.tz[i] : S.sz[i];
@@ -139,6 +161,10 @@ function snapshot(now) {
     x += Math.sin(time*(0.6 + zr) + ph) * a2;
     y += Math.cos(time*(0.5 + zr*0.8) + ph*1.3) * a2;
     z += Math.sin(time*0.7 + ph*2) * a2 * 0.8;
+    if (spread > 0) {
+      densityOffset(ph, zr, spread * e, offset);
+      x += offset[0]; y += offset[1]; z += offset[2];
+    }
     S.rx[i] = x; S.ry[i] = y; S.rz[i] = z;
   }
 }

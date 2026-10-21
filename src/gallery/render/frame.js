@@ -45,6 +45,13 @@ function frame() {
   if (Math.abs(mt - S.mouse.pow) > 0.01) { S.mouse.pow += (mt - S.mouse.pow)*0.15; mouseAnim = true; }
   else if (S.mouse.pow !== mt) { S.mouse.pow = mt; mouseAnim = true; }
 
+  // 밀집도 변경은 재샘플링 없이 같은 점을 부드럽게 이동시킵니다.
+  const densityMoving = S.density !== S.params.density;
+  if (densityMoving) {
+    const delta = S.params.density - S.density;
+    S.density = Math.abs(delta) > 0.0005 ? S.density + delta * 0.18 : S.params.density;
+  }
+
   let panAnim = false;
   for (const k of ['x','y','z']) { const dd = S.panT[k] - S.pan[k]; if (Math.abs(dd) > 0.05) { S.pan[k] += dd*0.12; panAnim = true; } else S.pan[k] = S.panT[k]; }
   const st = S.sel >= 0 ? 1 : 0; let selAnim = false;
@@ -52,7 +59,7 @@ function frame() {
 
   if (S.statusPending && now >= S.endTime) { S.statusPending = false; setStatus(S.mode === 'form' ? '모인 상태' : '흩어진 상태'); }
   const animating = now < S.endTime + 80 || S.mode === 'scatter';
-  if (!(camMoving || animating || mouseAnim || selAnim || panAnim || S.dirty)) return;
+  if (!(camMoving || densityMoving || animating || mouseAnim || selAnim || panAnim || S.dirty)) return;
   S.dirty = false; drawnFrames++;
 
   gl.viewport(0, 0, cv.width, cv.height);
@@ -62,6 +69,8 @@ function frame() {
   bind('from', 0, 3); bind('to', 1, 3); bind('anim', 2, 4); bind('misc', 3, 4); bind('col', 4, 3);
   gl.uniform1f(GLU.u_time, now / 1000);
   gl.uniform1f(GLU.u_form, S.mode === 'form' ? 1 : 0);
+  const densityBox = imageBox();
+  gl.uniform1f(GLU.u_spread, S.mode === 'form' && !S.flat ? densitySpread(S.density, densityBox.w, densityBox.h) : 0);
   gl.uniform1f(GLU.u_size, S.params.size);
   gl.uniform1f(GLU.u_glow, S.params.glow);
   gl.uniform1f(GLU.u_dof, S.params.dof);

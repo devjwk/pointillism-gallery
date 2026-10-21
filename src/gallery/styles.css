@@ -138,3 +138,6 @@
 
 /* 검증 도구는 메인 갤러리와 분리된 보조 페이지입니다. */
 .validation-link{color:inherit;font-size:11px;text-underline-offset:3px;}
+
+/* 밀집도는 점 수가 아닌 형태 주변의 국소 흩어짐입니다. */
+.density-note { font-size:11px; color:#999; line-height:1.55; }

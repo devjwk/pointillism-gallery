@@ -15,10 +15,14 @@ let rebuildTimer = null;
 function scheduleRebuild(reuse) { clearTimeout(rebuildTimer); rebuildTimer = setTimeout(() => rebuild(true, !!reuse), 180); }
 function bindRange(id, outId, key, fmt) {
   const el = document.getElementById(id), out = document.getElementById(outId);
-  const show = () => out.textContent = fmt ? fmt(+el.value) : el.value;
+  const show = () => {
+    const text = fmt ? fmt(+el.value) : el.value;
+    out.textContent = text;
+    if (key === 'density') el.setAttribute('aria-valuetext', text);
+  };
   el.addEventListener('input', () => {
     S.params[key] = +el.value; show();
-    if (key === 'size' || key === 'glow' || key === 'dof' || key === 'lineDots' || key === 'color' || key === 'sat' || key === 'split') { S.dirty = true; return; }
+    if (key === 'density' || key === 'size' || key === 'glow' || key === 'dof' || key === 'lineDots' || key === 'color' || key === 'sat' || key === 'split') { S.dirty = true; return; }
     if (key === 'depth') { retargetDepth(); return; }
     if (key === 'relief' || key === 'tone' || key === 'unify' || key === 'sep') { scheduleDepthRefresh(); return; }
     scheduleRebuild(key === 'fill' || key === 'wb');
@@ -27,6 +31,7 @@ function bindRange(id, outId, key, fmt) {
   show();
 }
 bindRange('count','oCount','count', v => v.toLocaleString());
+bindRange('density','oDensity','density', v => Math.round(v*100) + '%');
 bindRange('contrast','oContrast','contrast', v => v.toFixed(2));
 bindRange('gamma','oGamma','gamma', v => v.toFixed(2));
 bindRange('size','oSize','size', v => v.toFixed(2));
