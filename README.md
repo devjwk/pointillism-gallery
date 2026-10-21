@@ -1,13 +1,15 @@
 <div align="center">
 
-<a href="https://devjwk.github.io/pointillism-gallery/"><img src="docs/images/cover-gradient.png" width="100%" alt="점묘 명화 갤러리: 수만 개의 점으로 다시 만나는 우리 그림. 흩어진 점이 모여 한 폭의 그림이 됩니다. 그 안에 담긴 선과 색, 공간의 깊이를 직접 탐색해 보세요."></a>
+<a href="https://devjwk.github.io/pointillism-gallery/"><img src="docs/images/cover-mono.png" width="100%" alt="점묘 명화 갤러리: 수만 개의 점으로 다시 만나는 우리 그림. 흩어진 점이 모여 한 폭의 그림이 됩니다. 그 안에 담긴 선과 색, 공간의 깊이를 직접 탐색해 보세요."></a>
 
 <br>
 
-[![Live Demo](https://img.shields.io/badge/갤러리_열기-바로_감상하기-9dd9cb?style=for-the-badge&labelColor=123b40)](https://devjwk.github.io/pointillism-gallery/)
-![WebGL](https://img.shields.io/badge/Graphics-WebGL-e6c392?style=flat-square&labelColor=172934)
-![Platform](https://img.shields.io/badge/Platform-PC_·_Mobile-c2b5dd?style=flat-square&labelColor=172934)
-![Single file](https://img.shields.io/badge/Build-Single_HTML-9dd9cb?style=flat-square&labelColor=172934)
+[![PC에서 감상하기](https://img.shields.io/badge/PC-갤러리_열기-000000?style=for-the-badge&labelColor=000000)](https://devjwk.github.io/pointillism-gallery/?view=pc)
+[![모바일에서 감상하기](https://img.shields.io/badge/Mobile-모바일로_감상하기-000000?style=for-the-badge&labelColor=000000)](https://devjwk.github.io/pointillism-gallery/?view=mobile)
+
+**[PC 버전](https://devjwk.github.io/pointillism-gallery/?view=pc)　|　[모바일 버전](https://devjwk.github.io/pointillism-gallery/?view=mobile)**
+
+<sub>먹과 여백에서 시작해, 점으로 이어지는 우리 그림의 새로운 풍경.</sub>
 
 [컨셉](#컨셉) · [작품 갤러리](#갤러리) · [개발 여정](#프로젝트-진행-과정) · [앞으로의 목표](#앞으로의-목표)
 
@@ -21,7 +23,7 @@
 > 먹선과 여백, 색과 질감에 담긴 한국 회화의 표현을 수만 개의 점으로 다시 바라봅니다.
 > 작품을 돌려 보고 가까이 들여다보며, 그 안의 피사체와 선, 공간의 깊이를 탐색하는 인터랙티브 아트 프로젝트입니다.
 
-<img src="docs/images/concept-cards.png" width="100%" alt="피사체를 나누고, 선과 색을 읽고, 공간을 경험합니다.">
+<img src="docs/images/concept-mono.png" width="100%" alt="피사체를 나누고, 선과 색을 읽고, 공간을 경험합니다.">
 
 <details>
 <summary>세 가지 관점을 구현하는 방법</summary>
@@ -119,7 +121,7 @@ flowchart LR
 
 ### PC와 모바일 최적화
 
-기기는 자동으로 구분합니다. 주소 뒤에 `?view=pc` 또는 `?view=mobile`을 붙이면 직접 고를 수 있습니다.
+기기는 자동으로 구분합니다. 원하는 환경으로 바로 열려면 [PC 전용 링크](https://devjwk.github.io/pointillism-gallery/?view=pc) 또는 [모바일 전용 링크](https://devjwk.github.io/pointillism-gallery/?view=mobile)를 사용하세요. 모바일 링크는 휴대폰에서 열면 터치 조작과 모바일 화질 설정이 적용됩니다.
 
 | | PC | 모바일 |
 |---|---|---|
@@ -134,7 +136,7 @@ flowchart LR
 
 ## 프로젝트 진행 과정
 
-<img src="docs/images/journey-gradient.png" width="100%" alt="점의 움직임, 그림의 구조, 선과 색, 열린 갤러리로 이어지는 개발 과정">
+<img src="docs/images/journey-mono.png" width="100%" alt="점의 움직임, 그림의 구조, 선과 색, 열린 갤러리로 이어지는 개발 과정">
 
 <details>
 <summary>단계별 구현과 기술적 선택 자세히 보기</summary>
@@ -172,7 +174,7 @@ flowchart LR
 
 ## 앞으로의 목표
 
-<img src="docs/images/roadmap-gradient.png" width="100%" alt="다음 집중 과제: 얼굴과 디테일 개선, 모바일 실기기 검증, 릴스 녹화. 확장 목표: 의미와 맥락 분석, 작품 컬렉션, 설정 공유.">
+<img src="docs/images/roadmap-mono.png" width="100%" alt="다음 집중 과제: 얼굴과 디테일 개선, 모바일 실기기 검증, 릴스 녹화. 확장 목표: 의미와 맥락 분석, 작품 컬렉션, 설정 공유.">
 
 > 일정이 확정된 계획이 아니라 우선순위 순서의 방향입니다.
 
