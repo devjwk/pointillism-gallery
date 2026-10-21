@@ -4,6 +4,10 @@
 
 <br>
 
+<img src="docs/images/tech-stack-mono.png" width="100%" alt="사용 기술: JavaScript와 WebGL(3D 점 렌더링), Depth Anything V2(깊이 추정), SlimSAM(피사체 분할), Transformers.js(브라우저 AI 실행), DoG·Sobel·세선화(선 분석), GitHub Pages(정적 배포)">
+
+<br>
+
 [![PC에서 감상하기](https://img.shields.io/badge/PC-갤러리_열기-000000?style=for-the-badge&labelColor=000000)](https://devjwk.github.io/pointillism-gallery/?view=pc)
 [![모바일에서 감상하기](https://img.shields.io/badge/Mobile-모바일로_감상하기-000000?style=for-the-badge&labelColor=000000)](https://devjwk.github.io/pointillism-gallery/?view=mobile)
 
