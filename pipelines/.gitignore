@@ -1,0 +1,15 @@
+# Local generated outputs, caches, checkpoints, and configuration.
+outputs/
+runs/
+private-jobs/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+weights/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.scene.json

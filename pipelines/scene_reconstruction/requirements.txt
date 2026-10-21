@@ -1,0 +1,4 @@
+# CPU-side geometry helpers only; official GPU/model setup is external.
+numpy>=1.26,<3
+pillow>=11,<13
+trimesh>=4.5,<5

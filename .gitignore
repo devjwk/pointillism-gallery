@@ -1,0 +1,40 @@
+# Private inputs, generated reconstructions and reports
+inputs/
+input/
+outputs/
+runs/
+private/
+private-jobs/
+photo-3d-validation/
+*.scene.json
+*.glb
+*.gltf
+*.ply
+*.npy
+*.npz
+
+# Models and local credentials are never committed
+models/
+weights/
+checkpoints/
+*.onnx
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.wasm
+*.bin
+.env
+.env.*
+!.env.example
+
+# Local development/cache files
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.cache/
+.DS_Store
+*.zip

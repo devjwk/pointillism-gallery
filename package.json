@@ -1,0 +1,16 @@
+{
+  "name": "pointillism-gallery",
+  "private": true,
+  "type": "module",
+  "description": "한국 명화 점묘 갤러리와 분리된 3D 표면 점묘 검증 도구",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node scripts/build-gallery.mjs",
+    "build:check": "node scripts/build-gallery.mjs --check",
+    "check:site": "node scripts/check-site.mjs",
+    "test": "npm run build:check && npm run check:site && node --test tests/js/*.test.mjs",
+    "test:python:stdlib": "python3 -m unittest discover -s tests/python -p test_batch_stdlib.py",
+    "preview": "node scripts/preview.mjs",
+    "convert:visible": "node scripts/convert-visible.mjs"
+  }
+}

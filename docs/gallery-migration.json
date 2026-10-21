@@ -1,0 +1,10 @@
+{
+  "baseline_commit": "0dab2fe2b49e02780b90915f979aa0484ad25084",
+  "baseline_inline_script_sha256": "fca34affc8a51f97b5e689aede2bf23200b167f11d44f4e58455e59e6545f080",
+  "split_data_plus_runtime_sha256": "fca34affc8a51f97b5e689aede2bf23200b167f11d44f4e58455e59e6545f080",
+  "byte_identical": true,
+  "source_files": 22,
+  "data_file": "assets/artworks/catalog.js",
+  "runtime_file": "dist/gallery.js",
+  "note": "Legacy global-runtime semantics retained in a generated bundle; feature sources are organized, not rewritten into isolated ES modules."
+}
