@@ -1,24 +1,15 @@
 <div align="center">
 
-# 점묘 명화 갤러리
-
-**Pointillism Gallery**
-
-그림을 점으로 풀어 흩뿌렸다가, 다시 모읍니다.<br>
-점이 모이는 순간 선과 피사체와 깊이가 드러납니다.
+<a href="https://devjwk.github.io/pointillism-gallery/"><img src="docs/images/cover-gradient.png" width="100%" alt="점묘 명화 갤러리: 수만 개의 점으로 다시 만나는 우리 그림. 흩어진 점이 모여 한 폭의 그림이 됩니다. 그 안에 담긴 선과 색, 공간의 깊이를 직접 탐색해 보세요."></a>
 
 <br>
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-open-111111?style=for-the-badge&labelColor=000000)](https://devjwk.github.io/pointillism-gallery/)
-![Platform](https://img.shields.io/badge/PC_%2B_Mobile-optimized-111111?style=for-the-badge&labelColor=000000)
-![WebGL](https://img.shields.io/badge/WebGL-60fps-111111?style=for-the-badge&labelColor=000000)
-![Single file](https://img.shields.io/badge/single_HTML-no_build-111111?style=for-the-badge&labelColor=000000)
+[![Live Demo](https://img.shields.io/badge/갤러리_열기-바로_감상하기-9dd9cb?style=for-the-badge&labelColor=123b40)](https://devjwk.github.io/pointillism-gallery/)
+![WebGL](https://img.shields.io/badge/Graphics-WebGL-e6c392?style=flat-square&labelColor=172934)
+![Platform](https://img.shields.io/badge/Platform-PC_·_Mobile-c2b5dd?style=flat-square&labelColor=172934)
+![Single file](https://img.shields.io/badge/Build-Single_HTML-9dd9cb?style=flat-square&labelColor=172934)
 
-<br>
-
-<a href="https://devjwk.github.io/pointillism-gallery/"><img src="docs/images/hero-pc.jpg" alt="점묘 명화 갤러리: 미인도를 점으로 보여주는 화면" width="900"></a>
-
-<sub>미인도 (신윤복) · 점 45,000개 + 윤곽선 점 · 로그인, 설치 없이 브라우저에서 바로 열립니다</sub>
+[컨셉](#컨셉) · [작품 갤러리](#갤러리) · [개발 여정](#프로젝트-진행-과정) · [앞으로의 목표](#앞으로의-목표)
 
 </div>
 
@@ -26,11 +17,14 @@
 
 ## 컨셉
 
-> 한국 회화는 먹선과 여백, 붓이 지나간 자국으로 이루어진 예술입니다.
-> 이 프로젝트는 그림을 픽셀 그대로 복제하지 않고, **수만 개의 점으로 해체했다가 다시 조립**하면서
-> 그림이 무엇으로 이루어졌는지 눈으로 따라가 볼 수 있게 만드는 실험입니다.
+> **그림을 감상하는 또 하나의 방식.**
+> 먹선과 여백, 색과 질감에 담긴 한국 회화의 표현을 수만 개의 점으로 다시 바라봅니다.
+> 작품을 돌려 보고 가까이 들여다보며, 그 안의 피사체와 선, 공간의 깊이를 탐색하는 인터랙티브 아트 프로젝트입니다.
 
-단순히 점을 찍는 데서 멈추지 않고, 세 가지를 이해한 상태로 그림을 보여주는 것이 목표입니다.
+<img src="docs/images/concept-cards.png" width="100%" alt="피사체를 나누고, 선과 색을 읽고, 공간을 경험합니다.">
+
+<details>
+<summary>세 가지 관점을 구현하는 방법</summary>
 
 | | 질문 | 지금 하는 방식 |
 |---|---|---|
@@ -38,9 +32,18 @@
 | **선과 세부** | 어떤 선으로, 어디를 공들여 그렸나 | 윤곽과 필치를 따로 추출해 점 밀도와 윤곽선 점에 반영, 디테일 영역은 눌러서 확대 |
 | **맥락과 깊이** | 앞과 뒤는 어떻게 놓여 있나 | AI 깊이 추정에 명암, 필치 단서를 합쳐 3D로 배치하고 작품별 해설을 제공 |
 
+</details>
+
 <br>
 
 ## 갤러리
+
+<details>
+<summary>실제 PC 뷰어 화면 보기</summary>
+
+<img src="docs/images/hero-pc.jpg" width="100%" alt="미인도를 보여주는 PC 뷰어와 설정 패널">
+
+</details>
 
 <table>
   <tr>
@@ -82,7 +85,7 @@ flowchart LR
     G --> H["인터랙티브 3D 뷰어"]
 ```
 
-- 점의 이동, 원근 투영, 초점 흐림, 마우스 반응은 모두 GPU 셰이더에서 계산합니다. 점 6만 개 이상에서도 60fps를 유지합니다.
+- 점의 이동, 원근 투영, 초점 흐림, 마우스 반응은 모두 GPU 셰이더에서 계산합니다. PC 테스트에서는 점 약 6만 개를 60fps로 렌더링했습니다. 실제 성능은 기기와 설정에 따라 달라집니다.
 - 작품의 지도(밝기, 깊이, 색, 영역)는 압축해서 `index.html` 안에 내장했습니다. 서버가 필요 없습니다.
 - 내 이미지를 불러오면 깊이와 구성요소는 **내 브라우저 안에서** 계산합니다. 이미지는 서버로 올라가지 않습니다.
 
@@ -131,6 +134,11 @@ flowchart LR
 
 ## 프로젝트 진행 과정
 
+<img src="docs/images/journey-gradient.png" width="100%" alt="점의 움직임, 그림의 구조, 선과 색, 열린 갤러리로 이어지는 개발 과정">
+
+<details>
+<summary>단계별 구현과 기술적 선택 자세히 보기</summary>
+
 | 단계 | 한 일 | 결정과 배운 점 |
 |---|---|---|
 | **0. 출발** | SNS에서 본 After Effects ASCII 효과 튜토리얼을 분석하고, 이미지를 점으로 다시 그리는 연출을 웹에서 해보기로 함 | 한국 명화로 방향을 정함 (조선시대 작품은 퍼블릭 도메인) |
@@ -144,8 +152,10 @@ flowchart LR
 | **8. 배포** | GitHub Pages로 누구나 열 수 있게 공개 | 파일 하나(약 1.9MB)로 충분 |
 | **9. PC와 모바일 분리** | 하단 시트, 터치 조작, 기기별 점 개수와 해상도, 자동 화질 조절 | 실기기 검증은 아직 남음 |
 
+</details>
+
 <details>
-<summary>현재 수치</summary>
+<summary>현재 수치 · PC 테스트 환경에서 측정한 참고값</summary>
 
 | 항목 | 값 |
 |---|---|
@@ -161,6 +171,8 @@ flowchart LR
 <br>
 
 ## 앞으로의 목표
+
+<img src="docs/images/roadmap-gradient.png" width="100%" alt="다음 집중 과제: 얼굴과 디테일 개선, 모바일 실기기 검증, 릴스 녹화. 확장 목표: 의미와 맥락 분석, 작품 컬렉션, 설정 공유.">
 
 > 일정이 확정된 계획이 아니라 우선순위 순서의 방향입니다.
 
@@ -228,5 +240,5 @@ GitHub Pages가 `main` 브랜치의 `index.html`을 그대로 게시합니다. �
 ## 이미지 출처와 저작권
 
 - 인왕제색도, 미인도, 씨름: Wikimedia Commons의 퍼블릭 도메인 이미지입니다.
-- 예시 사진: 저작자가 직접 촬영했습니다.
+- 예시 사진: 프로젝트 소유자가 제공한 사진입니다. 회화 이미지와 동일한 퍼블릭 도메인으로 취급하지 않습니다.
 - 이 저장소에는 아직 별도 라이선스 파일이 없습니다. 코드를 재사용하려면 먼저 문의해 주세요.
