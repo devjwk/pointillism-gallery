@@ -280,22 +280,41 @@ async function inflateB64(b64) {
   const stream = new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'));
   return new Uint8Array(await new Response(stream).arrayBuffer());
 }
-async function ensureGray(i) {
-  const a = ART[i];
-  if (a.gray) return a.gray;
-  const m = a.meta;
-  const [g, d] = await Promise.all([inflateB64(m.gray), inflateB64(m.depth)]);
-  a.gray = bytesToGray(g, m.w, m.h);
-  const dm = bytesToGray(d, m.dw || m.w, m.dh || m.h);
-  a.gray.depth = (dm.w === m.w && dm.h === m.h) ? dm.lum : resizeBilinear(dm.lum, dm.w, dm.h, m.w, m.h);
-  if (m.rgb) a.gray.rgb = { w: m.rw, h: m.rh, data: await inflateB64(m.rgb) };
+// 추가 작품은 선택할 때만 지도를 받는다. 기존 4점의 내장 데이터 형식은 그대로 지원한다.
+async function loadArtworkMaps(m) {
+  if (!m.dataPath) return m;
+  if (!/^\.\/assets\/artworks\/maps\/[a-z0-9-]+\.json$/.test(m.dataPath)) throw new Error('올바르지 않은 작품 데이터 경로');
+  const response = await fetch(m.dataPath);
+  if (!response.ok) throw new Error('작품 이미지 지도 로딩 실패 (HTTP ' + response.status + ')');
+  const data = await response.json();
+  for (const key of ['id', 'w', 'h', 'dw', 'dh', 'rw', 'rh']) if (data[key] !== m[key]) throw new Error('작품 이미지 지도 정보 불일치: ' + key);
+  for (const key of ['gray', 'depth', 'rgb']) if (typeof data[key] !== 'string' || !data[key]) throw new Error('작품 이미지 지도 누락: ' + key);
+  return data;
+}
+async function decodeArtworkMaps(a) {
+  const m = a.meta, data = await loadArtworkMaps(m);
+  const [g, d, rgb] = await Promise.all([inflateB64(data.gray), inflateB64(data.depth), data.rgb ? inflateB64(data.rgb) : null]);
+  const dw = m.dw || m.w, dh = m.dh || m.h;
+  if (g.length !== m.w*m.h || d.length !== dw*dh || (rgb && rgb.length !== m.rw*m.rh*3)) throw new Error('작품 이미지 지도 크기가 맞지 않아요');
+  const gray = bytesToGray(g, m.w, m.h), dm = bytesToGray(d, dw, dh);
+  gray.depth = (dm.w === m.w && dm.h === m.h) ? dm.lum : resizeBilinear(dm.lum, dm.w, dm.h, m.w, m.h);
+  if (rgb) gray.rgb = { w: m.rw, h: m.rh, data: rgb };
   if (m.seg) {
     const ids = await inflateB64(m.seg.ids);
     const sw0 = m.seg.w || m.w, sh0 = m.seg.h || m.h;
+    if (ids.length !== sw0*sh0) throw new Error('구성요소 지도 크기가 맞지 않아요');
     a.seg = { w: sw0, h: sh0, ids, segs: m.seg.segs, context: m.seg.context || '' };
-    a.gray.segIds = (sw0 === m.w && sh0 === m.h) ? ids : resizeIdsNearest(ids, sw0, sh0, m.w, m.h);
+    gray.segIds = (sw0 === m.w && sh0 === m.h) ? ids : resizeIdsNearest(ids, sw0, sh0, m.w, m.h);
   }
-  return a.gray;
+  // 모든 압축 해제와 검증을 마친 뒤에만 캐시한다. 실패한 요청은 다음 선택에서 재시도할 수 있다.
+  a.gray = gray;
+  return gray;
+}
+async function ensureGray(i) {
+  const a = ART[i];
+  if (a.gray) return a.gray;
+  if (!a.grayTask) a.grayTask = decodeArtworkMaps(a).finally(() => { a.grayTask = null; });
+  return a.grayTask;
 }
 function rotateGray(g, rot) {
   let { w, h, lum } = g;
@@ -1224,13 +1243,30 @@ function renderHotChips(a) {
     b.append(nm, sm); b.addEventListener('click', () => zoomTo(hs)); box.appendChild(b);
   });
 }
+function appendArtworkSource(ctx, a) {
+  const pageUrl = a.meta?.source?.pageUrl;
+  if (typeof pageUrl !== 'string') return;
+  let url;
+  try { url = new URL(pageUrl); } catch { return; }
+  if (url.protocol !== 'https:' || url.hostname !== 'commons.wikimedia.org' || url.port || url.username || url.password) return;
+  const source = document.createElement('p'), link = document.createElement('a');
+  link.href = url.href; link.textContent = '이미지 출처 · Wikimedia Commons';
+  link.target = '_blank'; link.rel = 'noopener noreferrer';
+  source.appendChild(link); ctx.appendChild(source);
+}
 function renderSegPanel() {
   const panel = document.getElementById('segpanel'), chips = document.getElementById('chips'), ctx = document.getElementById('ctx');
   const a = ART[S.cur]; chips.innerHTML = ''; S.lockId = -1; S.sel = -1;
   if (!a) { panel.classList.remove('on'); return; }
   panel.classList.add('on');
   renderHotChips(a);
-  if (!a.seg || !a.cache || !a.cache.map.segStat) { ctx.innerHTML = '아직 구성요소를 분석하지 않았어요. 아래 <b>구성요소 분석 (SAM)</b>을 누르면 피사체를 구분합니다.'; return; }
+  const context = a.seg?.context || a.meta?.context;
+  const explanation = context ? '<b>' + (a.seg?.context ? '맥락' : '작품 해설') + '</b> ' + esc(context) + '<br><br>' : '';
+  if (!a.seg || !a.cache?.map?.segStat) {
+    ctx.innerHTML = explanation + '아직 구성요소를 분석하지 않았어요. 아래 <b>구성요소 분석 (SAM)</b>을 누르면 피사체를 구분합니다.';
+    appendArtworkSource(ctx, a);
+    return;
+  }
   const st = a.cache.map.segStat;
   const list = a.seg.segs.filter(s => st[s.id] && st[s.id].area > 0).sort((p, q) => st[q.id].med - st[p.id].med);
   list.forEach(s => {
@@ -1245,7 +1281,8 @@ function renderSegPanel() {
     b.addEventListener('dblclick', () => { const v = prompt('이 구성요소의 이름', s.ko); if (v && v.trim()) { s.ko = v.trim(); renderSegPanel(); } });
     chips.appendChild(b);
   });
-  ctx.innerHTML = (a.seg.context ? '<b>맥락</b> ' + esc(a.seg.context) + '<br><br>' : '') + autoContext(a);
+  ctx.innerHTML = explanation + autoContext(a);
+  appendArtworkSource(ctx, a);
 }
 // 화면의 한 점을 눌렀을 때 그 위치의 가장 앞쪽 점이 속한 구성요소를 찾는다 (셰이더와 같은 투영식)
 function pickSegment(clientX, clientY) {

@@ -34,13 +34,30 @@ function renderHotChips(a) {
     b.append(nm, sm); b.addEventListener('click', () => zoomTo(hs)); box.appendChild(b);
   });
 }
+function appendArtworkSource(ctx, a) {
+  const pageUrl = a.meta?.source?.pageUrl;
+  if (typeof pageUrl !== 'string') return;
+  let url;
+  try { url = new URL(pageUrl); } catch { return; }
+  if (url.protocol !== 'https:' || url.hostname !== 'commons.wikimedia.org' || url.port || url.username || url.password) return;
+  const source = document.createElement('p'), link = document.createElement('a');
+  link.href = url.href; link.textContent = '이미지 출처 · Wikimedia Commons';
+  link.target = '_blank'; link.rel = 'noopener noreferrer';
+  source.appendChild(link); ctx.appendChild(source);
+}
 function renderSegPanel() {
   const panel = document.getElementById('segpanel'), chips = document.getElementById('chips'), ctx = document.getElementById('ctx');
   const a = ART[S.cur]; chips.innerHTML = ''; S.lockId = -1; S.sel = -1;
   if (!a) { panel.classList.remove('on'); return; }
   panel.classList.add('on');
   renderHotChips(a);
-  if (!a.seg || !a.cache || !a.cache.map.segStat) { ctx.innerHTML = '아직 구성요소를 분석하지 않았어요. 아래 <b>구성요소 분석 (SAM)</b>을 누르면 피사체를 구분합니다.'; return; }
+  const context = a.seg?.context || a.meta?.context;
+  const explanation = context ? '<b>' + (a.seg?.context ? '맥락' : '작품 해설') + '</b> ' + esc(context) + '<br><br>' : '';
+  if (!a.seg || !a.cache?.map?.segStat) {
+    ctx.innerHTML = explanation + '아직 구성요소를 분석하지 않았어요. 아래 <b>구성요소 분석 (SAM)</b>을 누르면 피사체를 구분합니다.';
+    appendArtworkSource(ctx, a);
+    return;
+  }
   const st = a.cache.map.segStat;
   const list = a.seg.segs.filter(s => st[s.id] && st[s.id].area > 0).sort((p, q) => st[q.id].med - st[p.id].med);
   list.forEach(s => {
@@ -55,7 +72,8 @@ function renderSegPanel() {
     b.addEventListener('dblclick', () => { const v = prompt('이 구성요소의 이름', s.ko); if (v && v.trim()) { s.ko = v.trim(); renderSegPanel(); } });
     chips.appendChild(b);
   });
-  ctx.innerHTML = (a.seg.context ? '<b>맥락</b> ' + esc(a.seg.context) + '<br><br>' : '') + autoContext(a);
+  ctx.innerHTML = explanation + autoContext(a);
+  appendArtworkSource(ctx, a);
 }
 // 화면의 한 점을 눌렀을 때 그 위치의 가장 앞쪽 점이 속한 구성요소를 찾는다 (셰이더와 같은 투영식)
 function pickSegment(clientX, clientY) {

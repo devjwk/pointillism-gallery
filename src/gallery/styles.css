@@ -30,6 +30,8 @@
   .chip:hover, .chip.sel { border-color:#aaa; color:#fff; }
   #ctx { margin:0; font-size:12px; line-height:1.65; color:#a9a9a9; }
   #ctx b { color:#e6e6e6; font-weight:600; }
+  #ctx a { color:#d0d0d0; text-underline-offset:3px; }
+  #ctx a:focus-visible { outline:1px solid #aaa; outline-offset:3px; }
   .credit { font-size:10px; color:#555; line-height:1.5; margin:0; }
   main { position:relative; overflow:hidden; cursor:grab; touch-action:none; user-select:none; contain:layout paint; outline:none;
     background: radial-gradient(ellipse at 50% 45%, #1a1a1a 0%, #0a0a0a 55%, #000 100%); }

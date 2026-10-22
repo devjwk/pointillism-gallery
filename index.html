@@ -21,7 +21,7 @@
     <div id="tabs" role="tablist"><button type="button" data-tab="works">작품</button><button type="button" data-tab="parts">구성요소</button><button type="button" data-tab="tune">조정</button><button type="button" data-tab="tools">도구</button></div>
     <div class="sidehead"><h1>Pointillism</h1><button type="button" id="bPanel" title="패널 숨기기 (H)">숨기기 (H)</button></div>
     <div class="list" id="list" role="list"></div>
-    <section id="segpanel" aria-label="인식된 구성요소와 맥락"><h3>구성요소 · 맥락</h3><div id="chips"></div><h3 style="margin-top:6px">디테일 영역 (눌러서 확대)</h3><div id="hots"></div><p id="ctx"></p></section>
+    <section id="segpanel" aria-label="구성요소와 작품 해설"><h3>구성요소 · 맥락</h3><div id="chips"></div><h3 style="margin-top:6px">디테일 영역 (눌러서 확대)</h3><div id="hots"></div><p id="ctx"></p></section>
     <div class="ctl">
       <details class="grp" open><summary>기본 · 점</summary><div class="gbody">
         <label><span class="row">점 개수 <output id="oCount"></output></span>
@@ -90,7 +90,7 @@
       <input id="file" type="file" accept="image/*" hidden>
     </div>
     <p class="credit"><a class="validation-link" href="./tools/scene-validation/" target="_blank" rel="noopener">서브 검증 도구 · 장면의 결 열기</a></p>
-    <p class="credit">작품 이미지: Wikimedia Commons (퍼블릭 도메인). 깊이는 Depth Anything V2 (small)로 추정.</p>
+    <p class="credit">회화: Wikimedia Commons (퍼블릭 도메인). 예시 사진: 제공자 보유. 깊이는 Depth Anything V2 (small)의 상대 추정값입니다.</p>
   </aside>
   <main id="stage" tabindex="0" aria-label="점묘 3D 뷰어. 드래그와 화살표 키로 상하좌우 360도 회전, 휠로 확대">
     <canvas id="cv"></canvas>

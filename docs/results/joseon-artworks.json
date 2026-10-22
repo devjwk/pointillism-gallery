@@ -1,0 +1,320 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-22T00:01:54.647Z",
+  "scope": "Pre-publication local desktop preview under the /pointillism-gallery/ subpath; not mobile hardware or 3D accuracy validation.",
+  "automatedTestsPassed": 64,
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "devicePixelRatio": 2
+  },
+  "addedWorks": [
+    {
+      "id": "geumgangjeondo",
+      "title": "금강전도",
+      "index": 4,
+      "basePoints": 45000,
+      "gray": [
+        646,
+        900
+      ],
+      "depthEstimated": true,
+      "segmentationProvided": false,
+      "rotation": {
+        "yawRadians": -10.709999999999997,
+        "pitchRadians": 8.100000000000003,
+        "pointerMoves": 44,
+        "free": true
+      },
+      "zoomTarget": 1.15,
+      "density": 1,
+      "sameCache": true,
+      "sameGray": true,
+      "samePoints": true,
+      "sourceLink": "https://commons.wikimedia.org/wiki/File:Jeong_Seon-Geumgangjeondo.jpg",
+      "glError": 0,
+      "error": null,
+      "pointPoolSlots": 61650,
+      "densityRoundTrip": {
+        "sequence": [
+          1,
+          0,
+          1
+        ],
+        "zeroReached": true,
+        "oneReached": true,
+        "retainedCache": true,
+        "retainedPointPool": true
+      }
+    },
+    {
+      "id": "seodang",
+      "title": "서당",
+      "index": 5,
+      "basePoints": 45000,
+      "gray": [
+        767,
+        900
+      ],
+      "depthEstimated": true,
+      "segmentationProvided": false,
+      "rotation": {
+        "yawRadians": -10.709999999999996,
+        "pitchRadians": 8.100000000000003,
+        "pointerMoves": 44,
+        "free": true
+      },
+      "zoomTarget": 1.3224999999999998,
+      "density": 1,
+      "sameCache": true,
+      "sameGray": true,
+      "samePoints": true,
+      "sourceLink": "https://commons.wikimedia.org/wiki/File:Danwon_Seodang.jpg",
+      "glError": 0,
+      "error": null,
+      "pointPoolSlots": 61650,
+      "densityRoundTrip": {
+        "sequence": [
+          1,
+          0,
+          1
+        ],
+        "zeroReached": true,
+        "oneReached": true,
+        "retainedCache": true,
+        "retainedPointPool": true
+      }
+    },
+    {
+      "id": "mudong",
+      "title": "무동",
+      "index": 6,
+      "basePoints": 45000,
+      "gray": [
+        766,
+        900
+      ],
+      "depthEstimated": true,
+      "segmentationProvided": false,
+      "rotation": {
+        "yawRadians": -10.709999999999996,
+        "pitchRadians": 8.100000000000007,
+        "pointerMoves": 44,
+        "free": true
+      },
+      "zoomTarget": 1.5208749999999995,
+      "density": 1,
+      "sameCache": true,
+      "sameGray": true,
+      "samePoints": true,
+      "sourceLink": "https://commons.wikimedia.org/wiki/File:Danwon_Mudong.jpg",
+      "glError": 0,
+      "error": null,
+      "pointPoolSlots": 61650,
+      "densityRoundTrip": {
+        "sequence": [
+          1,
+          0,
+          1
+        ],
+        "zeroReached": true,
+        "oneReached": true,
+        "retainedCache": true,
+        "retainedPointPool": true
+      }
+    },
+    {
+      "id": "dano-pungjeong",
+      "title": "단오풍정",
+      "index": 7,
+      "basePoints": 45000,
+      "gray": [
+        900,
+        726
+      ],
+      "depthEstimated": true,
+      "segmentationProvided": false,
+      "rotation": {
+        "yawRadians": -10.709999999999997,
+        "pitchRadians": 8.100000000000003,
+        "pointerMoves": 44,
+        "free": true
+      },
+      "zoomTarget": 1.7490062499999994,
+      "density": 1,
+      "sameCache": true,
+      "sameGray": true,
+      "samePoints": true,
+      "sourceLink": "https://commons.wikimedia.org/wiki/File:Hyewon-Dano.pungjeong.jpg",
+      "glError": 0,
+      "error": null,
+      "pointPoolSlots": 61650,
+      "densityRoundTrip": {
+        "sequence": [
+          1,
+          0,
+          1
+        ],
+        "zeroReached": true,
+        "oneReached": true,
+        "retainedCache": true,
+        "retainedPointPool": true
+      }
+    },
+    {
+      "id": "wolha-jeongin",
+      "title": "월하정인",
+      "index": 8,
+      "basePoints": 45000,
+      "gray": [
+        900,
+        771
+      ],
+      "depthEstimated": true,
+      "segmentationProvided": false,
+      "rotation": {
+        "yawRadians": -10.709999999999997,
+        "pitchRadians": 8.100000000000003,
+        "pointerMoves": 44,
+        "free": true
+      },
+      "zoomTarget": 2.0113571874999994,
+      "density": 1,
+      "sameCache": true,
+      "sameGray": true,
+      "samePoints": true,
+      "sourceLink": "https://commons.wikimedia.org/wiki/File:Hyewon-Wolha-jeongin-2.jpg",
+      "glError": 0,
+      "error": null,
+      "pointPoolSlots": 61650,
+      "densityRoundTrip": {
+        "sequence": [
+          1,
+          0,
+          1
+        ],
+        "zeroReached": true,
+        "oneReached": true,
+        "retainedCache": true,
+        "retainedPointPool": true
+      }
+    },
+    {
+      "id": "sehando",
+      "title": "세한도",
+      "index": 9,
+      "basePoints": 45000,
+      "gray": [
+        900,
+        241
+      ],
+      "depthEstimated": true,
+      "segmentationProvided": false,
+      "rotation": {
+        "yawRadians": -10.709999999999994,
+        "pitchRadians": 8.100000000000009,
+        "pointerMoves": 44,
+        "free": true
+      },
+      "zoomTarget": 2.313060765624999,
+      "density": 1,
+      "sameCache": true,
+      "sameGray": true,
+      "samePoints": true,
+      "sourceLink": "https://commons.wikimedia.org/wiki/File:Sehando.jpg",
+      "glError": 0,
+      "error": null,
+      "pointPoolSlots": 61650,
+      "densityRoundTrip": {
+        "sequence": [
+          1,
+          0,
+          1
+        ],
+        "zeroReached": true,
+        "oneReached": true,
+        "retainedCache": true,
+        "retainedPointPool": true
+      }
+    }
+  ],
+  "legacyWorks": [
+    {
+      "id": "inwang",
+      "ready": true,
+      "cache": true,
+      "segmentationProvided": true,
+      "pointPoolSlots": 61650,
+      "error": null,
+      "glError": 0
+    },
+    {
+      "id": "miindo",
+      "ready": true,
+      "cache": true,
+      "segmentationProvided": true,
+      "pointPoolSlots": 61650,
+      "error": null,
+      "glError": 0
+    },
+    {
+      "id": "ssireum",
+      "ready": true,
+      "cache": true,
+      "segmentationProvided": true,
+      "pointPoolSlots": 61650,
+      "error": null,
+      "glError": 0
+    },
+    {
+      "id": "porsche",
+      "ready": true,
+      "cache": true,
+      "segmentationProvided": true,
+      "pointPoolSlots": 61650,
+      "error": null,
+      "glError": 0
+    }
+  ],
+  "resources": {
+    "individualMapFetches": [
+      {
+        "path": "/pointillism-gallery/assets/artworks/maps/geumgangjeondo.json",
+        "initiator": "fetch",
+        "encodedBytes": 1144090
+      },
+      {
+        "path": "/pointillism-gallery/assets/artworks/maps/seodang.json",
+        "initiator": "fetch",
+        "encodedBytes": 1196743
+      },
+      {
+        "path": "/pointillism-gallery/assets/artworks/maps/mudong.json",
+        "initiator": "fetch",
+        "encodedBytes": 1323370
+      },
+      {
+        "path": "/pointillism-gallery/assets/artworks/maps/dano-pungjeong.json",
+        "initiator": "fetch",
+        "encodedBytes": 1409990
+      },
+      {
+        "path": "/pointillism-gallery/assets/artworks/maps/wolha-jeongin.json",
+        "initiator": "fetch",
+        "encodedBytes": 1112453
+      },
+      {
+        "path": "/pointillism-gallery/assets/artworks/maps/sehando.json",
+        "initiator": "fetch",
+        "encodedBytes": 337619
+      }
+    ],
+    "selectedAgainWithoutNewMapFetch": true,
+    "note": "ResourceTiming confirms individual fetches and cache reuse, not a complete network or upload-method audit."
+  },
+  "limitations": [
+    "Relative-depth maps are estimates, not ground-truth metric geometry.",
+    "SAM segmentation and automatic semantic labels were not provided for the six additions.",
+    "Unseen surfaces, GPU scene generation, mobile hardware performance and perceptual quality are unverified."
+  ]
+}
