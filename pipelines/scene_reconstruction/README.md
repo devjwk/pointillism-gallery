@@ -1,5 +1,9 @@
 # One-shot scene reconstruction (GPU path, unverified)
 
+## Role in the project
+
+This is an unexecuted integration prototype, not the completed context-guided scene generation in the [project roadmap](../../docs/roadmap.md). The gallery remains an art-first experience; component/environment inference, natural settings, local correction and stable multi-view stippling are future goals. This module's front-oriented background is not a complete surrounding world. [Current evidence](../../docs/status.md) is separate from [product direction](../../docs/project-direction.md).
+
 This optional, source-derived CLI converts one local photo into saved meshes and a manifest, then exits. There is no permanent server, FastAPI app, or API token. It is separate from the executable visible-surface baseline in `tools/scene-validation`.
 
 **Actual SAM 3D / SAM2 / LaMa GPU inference has never been executed or validated for this delivery.** No checkpoints, input photos, generated scenes, private configuration, or secrets are bundled. Passing CLI tests does not establish that model loading, CUDA rasterization, mesh generation, or reconstruction quality works.

@@ -1,0 +1,119 @@
+{
+  "type": "documentation-and-directory-organization",
+  "recorded_at": "2026-10-22T19:05:15.970Z",
+  "baseline_commit": "bab816bbe84da5bad11eae528da0924be9c27aa3",
+  "runtime_changed": false,
+  "verified_unchanged_baseline_files": 114,
+  "verified_unchanged_non_document_runtime_asset_files": 78,
+  "moved_images": [
+    {
+      "from": "docs/images/concept-cards.png",
+      "to": "docs/archive/images/concept-cards.png",
+      "sha256": "fdac90cde5b9af8643893dab7e661aa47d4d1797f40dc2a587e4008ef9715c9f"
+    },
+    {
+      "from": "docs/images/concept-mono.png",
+      "to": "docs/archive/images/concept-mono.png",
+      "sha256": "c10cc4c751f6510af9fecb49f2fd8e46d18b6cb6b61cebb45a513beeced87029"
+    },
+    {
+      "from": "docs/images/cover-gradient.png",
+      "to": "docs/archive/images/cover-gradient.png",
+      "sha256": "bf76ae9ccaf0e7092aa5d52b142cae4e450a45a6292269bc05949d088c31a73b"
+    },
+    {
+      "from": "docs/images/gathering.jpg",
+      "to": "docs/archive/images/gathering.jpg",
+      "sha256": "a9b57cfb71a87c9d9afc5bc2f9ddacb6c83b51362f16d1540edd2a2173cc5f56"
+    },
+    {
+      "from": "docs/images/hero-pc.jpg",
+      "to": "docs/archive/images/hero-pc.jpg",
+      "sha256": "312ff014432791e83e97e5389e7bec15e90909ae51548bafc975cbbb52361771"
+    },
+    {
+      "from": "docs/images/inwang.jpg",
+      "to": "docs/archive/images/inwang.jpg",
+      "sha256": "a07f26e883caeb3cb2cb7a2b62b944981d85353f49861361d8e87119dd5e1830"
+    },
+    {
+      "from": "docs/images/journey-gradient.png",
+      "to": "docs/archive/images/journey-gradient.png",
+      "sha256": "93d07963027c4fc6b107126d2e8a63a7c2954b5e1afe3f10fb30d588dc9cb7ff"
+    },
+    {
+      "from": "docs/images/journey-mono.png",
+      "to": "docs/archive/images/journey-mono.png",
+      "sha256": "04fb23dc23136b6acae99873051c49bfa680e09ae86e903bfbc6b79c2eed3d35"
+    },
+    {
+      "from": "docs/images/miindo-lines.jpg",
+      "to": "docs/archive/images/miindo-lines.jpg",
+      "sha256": "4e13de5567bd05d81ddddcdc75c4302b96b7659b4f5211afb71ca6ca7865816e"
+    },
+    {
+      "from": "docs/images/mobile.jpg",
+      "to": "docs/archive/images/mobile.jpg",
+      "sha256": "1743070d66ee336a301a91ed955ecfd980afa2084689b838316e728d17776526"
+    },
+    {
+      "from": "docs/images/porsche.jpg",
+      "to": "docs/archive/images/porsche.jpg",
+      "sha256": "36db42f7c6ffe88fbf6d088df99cda674749d373e06242575b756d1edc51b7a0"
+    },
+    {
+      "from": "docs/images/roadmap-gradient.png",
+      "to": "docs/archive/images/roadmap-gradient.png",
+      "sha256": "aadd280d6ad8172d3027d796d7dc8faaa75e1cc266ef598fda2f6553ce665c36"
+    },
+    {
+      "from": "docs/images/roadmap-mono.png",
+      "to": "docs/archive/images/roadmap-mono.png",
+      "sha256": "3d4f22fcbb8001247774736f80c826e2eb005f9a00e1b6ab0068bd83aa2dc92c"
+    },
+    {
+      "from": "docs/images/scatter.jpg",
+      "to": "docs/archive/images/scatter.jpg",
+      "sha256": "94a5492e72593082f9c2deac69179fc949a58862d877ed383f63113fe14ab7cb"
+    },
+    {
+      "from": "docs/images/ssireum.jpg",
+      "to": "docs/archive/images/ssireum.jpg",
+      "sha256": "e37d148aab24a3929519a3f9103b0620bfdcca15410a97754204238506d3af95"
+    },
+    {
+      "from": "docs/images/progress/status-overview.png",
+      "to": "docs/archive/images/progress/status-overview.png",
+      "sha256": "7bf3e679078ced60a8786af15fdb427ebfb3b327021b25fc6327f23238bbc190"
+    },
+    {
+      "from": "docs/images/progress/status-overview.svg",
+      "to": "docs/archive/images/progress/status-overview.svg",
+      "sha256": "a6d7ac22b4811f4568333bc83cf90ee28048083c73aa35fe472dbec6e17ef88b"
+    },
+    {
+      "from": "docs/images/progress/roadmap.png",
+      "to": "docs/archive/images/progress/roadmap.png",
+      "sha256": "03809e09aa924b4ca2110f911ae8bf93f4d4d5b2f435b43a7bc74bf0fa9ab12b"
+    },
+    {
+      "from": "docs/images/progress/roadmap.svg",
+      "to": "docs/archive/images/progress/roadmap.svg",
+      "sha256": "3fc4245a9dd0ad9c43680a52b7f04c67c5dde1cd29ec84aeb4ac0c90f72e4853"
+    }
+  ],
+  "tests": {
+    "javascript": {
+      "command": "npm test",
+      "passed": 109,
+      "failed": 0
+    },
+    "python_stdlib": {
+      "command": "npm run test:python:stdlib",
+      "passed": 10,
+      "failed": 0
+    },
+    "document_links_and_private_file_guard": "passed"
+  },
+  "scope": "Documentation and image archiving only. No GPU inference, training, new image-quality study or mobile-device benchmark. Original recorded metrics unchanged."
+}
