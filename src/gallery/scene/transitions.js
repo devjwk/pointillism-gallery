@@ -1,6 +1,41 @@
 // =====================================================================
 //  목표 점 집합 (작품 / 제목 글자) 만들기
 // =====================================================================
+const SOURCE_COLOR_DEFAULTS = Object.freeze({ invertTone: false, color: 1, sat: 1, wb: 0, glow: 0, dof: 0, split: 0 });
+function sourceColorTune(t) {
+  // 구형 preset.invertTone은 먹선 배치의 극성으로만 읽고 화면 반전으로 복원하지 않는다.
+  return { contrast: 1.2, gamma: 1, size: 0.85, depth: 0.9, fill: 1, relief: 0.5, tone: 0.3,
+    unify: 0.3, sep: 0.4, detail: 1, lineTone: 0.6, lineDots: 0.35, localContrast: 0.6,
+    ...(t || {}), samplingInvert: !!t?.invertTone, ...SOURCE_COLOR_DEFAULTS };
+}
+function writeSourceColors(set, map, wb = 0) {
+  const R = map.rgb;
+  let fr = 1, fg = 1, fb = 1;
+  if (R && wb > 0) {
+    let sr = 0, sg = 0, sb = 0, count = 0;
+    for (let i=0;i<R.w*R.h;i++) {
+      const r = R.data[3*i], g = R.data[3*i+1], b = R.data[3*i+2];
+      if (Math.max(r,g,b) > 80) { sr += r; sg += g; sb += b; count++; }
+    }
+    if (count) {
+      const avg = (sr+sg+sb)/3, k = clamp(wb,0,1);
+      fr = Math.pow(avg/Math.max(1,sr),k); fg = Math.pow(avg/Math.max(1,sg),k); fb = Math.pow(avg/Math.max(1,sb),k);
+    }
+  }
+  const colors = new Float32Array(set.n*3);
+  for (let o=0;o<set.n;o++) {
+    if (R) {
+      const x = clamp(Math.floor(set.nx[o]*R.w),0,R.w-1), y = clamp(Math.floor(set.ny[o]*R.h),0,R.h-1), q = (y*R.w+x)*3;
+      // 원본 RGB의 밝기를 버리거나 검정을 흰색으로 바꾸지 않는다. 보정 0이면 입력값 / 255 그대로다.
+      colors[3*o] = clamp(R.data[q]/255*fr,0,1); colors[3*o+1] = clamp(R.data[q+1]/255*fg,0,1); colors[3*o+2] = clamp(R.data[q+2]/255*fb,0,1);
+    } else {
+      const x = clamp(Math.floor(set.nx[o]*map.w),0,map.w-1), y = clamp(Math.floor(set.ny[o]*map.h),0,map.h-1), v = map.lum[y*map.w+x];
+      colors[3*o] = colors[3*o+1] = colors[3*o+2] = v;
+    }
+  }
+  set.col = colors;
+  return colors;
+}
 function computeArtwork(i, reuse) {
   const a = ART[i];
   if (reuse && a.cache) return a.cache;
@@ -46,21 +81,7 @@ function makeArtworkSet(i) {
     else if (ld.length) putLine(o, ld[(Math.random()*ld.length)|0]);
     else { const s = (Math.random()*m)|0; put(o, pts.x[s], pts.y[s], pts.l[s], pts.d[s], 1, pts.s[s]); }
   }
-  set.col = new Float32Array(n*3).fill(1);
-  const R = map.rgb;
-  if (R) {
-    // 화이트밸런스: 종이/조명 전체의 색 기운을 빼야 안료 고유의 색(파랑, 빨강)이 살아난다
-    let sr = 0, sg = 0, sb = 0, cn = 0;
-    for (let i=0;i<R.w*R.h;i++) { const r = R.data[3*i], g = R.data[3*i+1], b = R.data[3*i+2]; if (Math.max(r, g, b) > 80) { sr += r; sg += g; sb += b; cn++; } }
-    const avg = (sr + sg + sb)/3, gr = cn ? avg/Math.max(1, sr) : 1, gg = cn ? avg/Math.max(1, sg) : 1, gb = cn ? avg/Math.max(1, sb) : 1, wbk = S.params.wb;
-    const fr = Math.pow(gr, wbk), fg = Math.pow(gg, wbk), fb = Math.pow(gb, wbk);
-    for (let o=0;o<n;o++) {
-      const cx = Math.min(R.w-1, (set.nx[o]*R.w)|0), cy = Math.min(R.h-1, (set.ny[o]*R.h)|0), q = (cy*R.w + cx)*3;
-      const r = Math.min(1, R.data[q]/255*fr), g = Math.min(1, R.data[q+1]/255*fg), b = Math.min(1, R.data[q+2]/255*fb), mx = Math.max(r, g, b, 1e-3);
-      const k = clamp((mx - 0.08)/0.2, 0, 1);               // 아주 어두운 곳은 색을 빼서 잡음 방지
-      set.col[3*o] = 1 + k*(r/mx - 1); set.col[3*o+1] = 1 + k*(g/mx - 1); set.col[3*o+2] = 1 + k*(b/mx - 1);
-    }
-  }
+  writeSourceColors(set, map, S.params.wb);
   return set;
 }
 // 작품 제목 글자를 점으로 (캔버스에 글자를 그린 뒤 같은 점 찍기 알고리즘 사용)
@@ -158,11 +179,48 @@ async function rebuild(keepMode, reuse) {
 }
 
 // ---------- 작품 선택 연출: (흩어진 상태) 제목 글자 -> 그림 / (모인 상태) 바로 변형 ----------
-function setTone(on) { S.params.invertTone = !!on; document.getElementById('bTone').textContent = '명암 반전: ' + (on ? '켜짐' : '꺼짐'); }
+function setTone(on) {
+  S.params.invertTone = !!on;
+  const button = document.getElementById('bTone');
+  button.textContent = '색 반전: ' + (on ? '켜짐' : '꺼짐'); button.setAttribute('aria-pressed', String(!!on));
+  S.dirty = true;
+}
+function setStageBackground(dark) {
+  S.darkBackground = !!dark; stage.classList.toggle('dark-background', S.darkBackground);
+  const button = document.getElementById('bBackground');
+  button.textContent = '배경: ' + (dark ? '어둡게' : '밝게'); button.setAttribute('aria-pressed', String(S.darkBackground));
+  S.dirty = true;
+}
 function applyTune(t) {
-  setTone(!!(t && t.invertTone));
-  if (!t) return;
-  for (const [k, v] of Object.entries(t)) { if (k === 'invertTone') continue; const el = document.getElementById(k); if (!el) continue; el.value = v; S.params[k] = +v; el.dispatchEvent(new Event('x-sync')); }
+  const tune = sourceColorTune(t);
+  S.params.samplingInvert = tune.samplingInvert;
+  S.lineView = false;
+  const lineButton = document.getElementById('bLine'); if (lineButton) lineButton.textContent = '선 분석 보기';
+  setTone(false);
+  for (const [k, v] of Object.entries(tune)) {
+    if (k === 'invertTone' || k === 'samplingInvert') continue;
+    const el = document.getElementById(k); if (!el) continue;
+    el.value = v; S.params[k] = +v; el.dispatchEvent(new Event('x-sync'));
+  }
+}
+function refreshSourceColors() {
+  const a = ART[S.cur];
+  if (!a?.cache || S.flat) return;
+  const set = { n: S.n, nx: S.nx, ny: S.ny };
+  writeSourceColors(set, a.cache.map, S.params.wb); S.col.set(set.col); uploadStatic();
+  S.dirty = true;
+}
+function restoreSourceColors() {
+  S.lineView = false;
+  const lineButton = document.getElementById('bLine'); if (lineButton) lineButton.textContent = '선 분석 보기';
+  setTone(false);
+  for (const [k,v] of Object.entries(SOURCE_COLOR_DEFAULTS)) {
+    if (k === 'invertTone') continue;
+    S.params[k] = v; const el = document.getElementById(k);
+    if (el) { el.value = v; el.dispatchEvent(new Event('x-sync')); }
+  }
+  refreshSourceColors();
+  S.dirty = true;
 }
 async function playArtwork(idx) {
   const token = ++S.seq;
@@ -196,6 +254,8 @@ async function playArtwork(idx) {
       }
       applyTargets(set, 'form', titled ? 'morph' : 'gather'); setStatus('모이는 중');
     }
+    // 제목 연출 중 바뀐 색 보정도 실제 작품 점에 반영한다.
+    refreshSourceColors();
     const wait = Math.max(0, S.endTime - performance.now());
     setTimeout(() => { if (token === S.seq) showCaption(true); }, Math.max(600, wait - 500));
   } catch (e) { S.err = e.message; statusEl.textContent = '오류: ' + e.message; }

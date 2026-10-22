@@ -100,7 +100,8 @@ function analyzeImage(gray, rotation, p) {
     for (let i=0;i<w*h;i++) lum[i] = clamp(lum[i] + p.localContrast*1.3*(lum[i] - lg[i]), 0, 1);
   }
   const lv = normalizeRange(lum, 0.02, 0.98);
-  if (p.invertTone) for (let i=0;i<w*h;i++) lv[i] = 1 - lv[i];
+  // 점 배치용 중요도만 반전할 수 있다. 표시 RGB와 원본 명암·깊이에는 적용하지 않는다.
+  if (p.samplingInvert) for (let i=0;i<w*h;i++) lv[i] = 1 - lv[i];
   const out = new Float32Array(w*h);
   for (let i=0;i<w*h;i++) out[i] = Math.pow(clamp((lv[i] - 0.5)*p.contrast + 0.5, 0, 1), p.gamma);
   // 선 분석과 디테일 지도 (원본 명암 기준, 회전별로 캐시)
@@ -114,22 +115,25 @@ function analyzeImage(gray, rotation, p) {
   }
   const an = gray._an[akey];
   if (p.lineTone > 0) {   // 선이 점 밀도에서도 또렷하게: 어두운 선은 파고, 반전 모드에서는 밝게 돋운다
-    const sg = p.invertTone ? 1 : -1, kk = p.lineTone*0.85, M = an.lines.mask;
+    const sg = p.samplingInvert ? 1 : -1, kk = p.lineTone*0.85, M = an.lines.mask;
     for (let i=0;i<w*h;i++) out[i] = clamp(out[i] + sg*kk*M[i], 0, 1);
   }
   let d0;
   if (gray.depth) {
     d0 = normalizeRange(rotateGray({ w: gray.w, h: gray.h, lum: gray.depth }, rot).lum, 0.01, 0.99);
     // 모델 깊이의 경계를 그림 자체의 경계에 맞춘다 (경계가 번져 보이는 문제 완화)
-    d0 = normalizeRange(guidedFilter(out, d0, w, h, Math.max(2, Math.round(0.007*Math.max(w, h))), 0.004), 0.003, 0.997);
+    d0 = normalizeRange(guidedFilter(src, d0, w, h, Math.max(2, Math.round(0.007*Math.max(w, h))), 0.004), 0.003, 0.997);
   } else {
-    const big = boxBlur(out, w, h, 12), small = boxBlur(out, w, h, 3), dr = new Float32Array(w*h);
+    const big = boxBlur(src, w, h, 12), small = boxBlur(src, w, h, 3), dr = new Float32Array(w*h);
     for (let i=0;i<w*h;i++) dr[i] = 0.7*big[i] + 0.3*small[i];
     d0 = normalizeRange(dr, 0.02, 0.98);
   }
   const dens = new Float32Array(w*h), dk = p.detail;
-  for (let i=0;i<w*h;i++) dens[i] = densityOf(out[i])*(1 + dk*an.detail[i]);   // 디테일이 많은 곳에 점을 더 몰아준다
-  const map = { rgb: gray.rgb ? rotateRGB(gray.rgb, rot) : null, w, h, lum: out, dens, detail: an.detail, lines: an.lines, depth0: d0, depthReal: !!gray.depth, bands: null, segIds: null, segStat: null, gmed: 0.5 };
+  let densitySum = 0;
+  for (let i=0;i<w*h;i++) { dens[i] = densityOf(out[i])*(1 + dk*an.detail[i]); densitySum += dens[i]; }
+  // 완전한 검정처럼 중요도가 전부 0인 입력도 원본 색을 가진 점으로 표시한다.
+  if (densitySum < 1e-6) dens.fill(1);
+  const map = { rgb: gray.rgb ? rotateRGB(gray.rgb, rot) : null, w, h, lum: new Float32Array(src), samplingLum: out, dens, detail: an.detail, lines: an.lines, depth0: d0, depthReal: !!gray.depth, bands: null, segIds: null, segStat: null, gmed: 0.5 };
   if (gray.segIds) { map.segIds = rotateIds(gray.segIds, gray.w, gray.h, rot).ids; computeSegStats(map); }
   map.depth = composeDepth(map, p);
   return map;

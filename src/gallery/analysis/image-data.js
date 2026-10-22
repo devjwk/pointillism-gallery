@@ -8,12 +8,12 @@ function grayFromImage(img) {
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d', { willReadFrequently: true });
   g.imageSmoothingQuality = 'high';
+  // 투명 PNG는 흰 바탕에 합성한다. 정상적인 검정 이미지를 읽기 실패로 오인하지 않는다.
+  g.fillStyle = '#fff'; g.fillRect(0, 0, w, h);
   g.drawImage(img, 0, 0, w, h);
   const data = g.getImageData(0, 0, w, h).data;
   const lum = new Float32Array(w*h);
-  let sum = 0;
-  for (let i=0;i<w*h;i++) { lum[i] = (0.2126*data[i*4] + 0.7152*data[i*4+1] + 0.0722*data[i*4+2]) / 255; sum += lum[i]; }
-  if (sum < 1e-3) throw new Error('이 브라우저가 이미지 픽셀 읽기를 막고 있어요');
+  for (let i=0;i<w*h;i++) lum[i] = (0.2126*data[i*4] + 0.7152*data[i*4+1] + 0.0722*data[i*4+2]) / 255;
   const ck = Math.min(1, 280/Math.max(w, h)), cw = Math.max(4, Math.round(w*ck)), ch = Math.max(4, Math.round(h*ck));
   const c2 = document.createElement('canvas'); c2.width = cw; c2.height = ch;
   const g2 = c2.getContext('2d', { willReadFrequently: true }); g2.imageSmoothingQuality = 'high'; g2.drawImage(c, 0, 0, cw, ch);

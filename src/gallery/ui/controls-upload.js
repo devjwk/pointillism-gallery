@@ -23,6 +23,7 @@ function bindRange(id, outId, key, fmt) {
   el.addEventListener('input', () => {
     S.params[key] = +el.value; show();
     if (key === 'density' || key === 'size' || key === 'glow' || key === 'dof' || key === 'lineDots' || key === 'color' || key === 'sat' || key === 'split') { S.dirty = true; return; }
+    if (key === 'wb') { refreshSourceColors(); return; }
     if (key === 'depth') { retargetDepth(); return; }
     if (key === 'relief' || key === 'tone' || key === 'unify' || key === 'sep') { scheduleDepthRefresh(); return; }
     scheduleRebuild(key === 'fill' || key === 'wb');
@@ -60,7 +61,10 @@ document.getElementById('list').addEventListener('click', e => {
 });
 document.getElementById('bToggle').addEventListener('click', () => startMove(S.mode === 'form' ? 'scatter' : 'form'));
 document.getElementById('bRotate').addEventListener('click', () => { if (S.cur < 0) return; ART[S.cur].rotation = (ART[S.cur].rotation+1) % 4; rebuild(true, false); });
-document.getElementById('bTone').addEventListener('click', () => { setTone(!S.params.invertTone); rebuild(true, false); });
+// 색 반전과 배경은 표시만 바꾼다. 점 위치·중요도·깊이는 다시 계산하지 않는다.
+document.getElementById('bTone').addEventListener('click', () => setTone(!S.params.invertTone));
+document.getElementById('bOriginal').addEventListener('click', () => restoreSourceColors());
+document.getElementById('bBackground').addEventListener('click', () => setStageBackground(!S.darkBackground));
 document.getElementById('bInvert').addEventListener('click', () => { S.invert = !S.invert; retargetDepth(); });
 document.getElementById('bLimit').addEventListener('click', () => setRotationMode(!S.limit));
 document.getElementById('bUpload').addEventListener('click', () => document.getElementById('file').click());

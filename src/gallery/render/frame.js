@@ -82,6 +82,9 @@ function frame() {
   gl.uniform1f(GLU.u_line, S.params.lineDots);
   gl.uniform1f(GLU.u_color, S.params.color);
   gl.uniform1f(GLU.u_sat, S.params.sat);
+  gl.uniform1f(GLU.u_invertColor, S.params.invertTone ? 1 : 0);
+  gl.uniform1f(GLU.u_flat, S.flat ? 1 : 0);
+  gl.uniform1f(GLU.u_darkBackground, S.darkBackground ? 1 : 0);
   gl.uniform1f(GLU.u_split, S.params.split*3.0);
   gl.uniform1f(GLU.u_chan, 0);
   gl.uniform1f(GLU.u_lineview, S.lineView ? 1 : 0);

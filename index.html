@@ -12,7 +12,7 @@
 <meta property="og:description" content="한국 명화를 점묘로 흩뿌렸다가 모아 3D로 보여주는 인터랙티브 뷰어. 드래그로 회전, 선·피사체·색을 분석해 봅니다.">
 <meta property="og:type" content="website">
 <title>점묘 명화 갤러리 (프로토타입)</title>
-<link rel="stylesheet" href="./src/gallery/styles.css?v=density-1">
+<link rel="stylesheet" href="./src/gallery/styles.css?v=source-color-1">
 </head>
 <body>
 <div id="app">
@@ -29,14 +29,14 @@
         <label><span class="row">점 밀집도 <output id="oDensity"></output></span>
         <input id="density" type="range" min="0" max="1" step="0.01" value="1" aria-describedby="densityHelp"></label>
         <span id="densityHelp" class="density-note">모인 상태: 높으면 기존 형태 유지 · 낮으면 주변으로 살짝 흩어짐. 점 수는 유지됩니다.</span>
-        <label><span class="row">대비 <output id="oContrast"></output></span>
+        <label><span class="row">점 배치 대비 <output id="oContrast"></output></span>
         <input id="contrast" type="range" min="0.6" max="2.6" step="0.05" value="1.2"></label>
-        <label><span class="row">감마 (어둡게/밝게) <output id="oGamma"></output></span>
+        <label><span class="row">점 배치 감마 <output id="oGamma"></output></span>
         <input id="gamma" type="range" min="0.5" max="2.2" step="0.05" value="1.0"></label>
         <label><span class="row">점 크기 <output id="oSize"></output></span>
         <input id="size" type="range" min="0.5" max="2.2" step="0.05" value="0.85"></label>
         <label><span class="row">번짐 <output id="oGlow"></output></span>
-        <input id="glow" type="range" min="0" max="1" step="0.05" value="0.3"></label>
+        <input id="glow" type="range" min="0" max="1" step="0.05" value="0"></label>
       </div></details>
       <details class="grp"><summary>디테일 · 선</summary><div class="gbody">
         <label><span class="row">디테일 집중 (얼굴·세부) <output id="oDetail"></output></span>
@@ -62,15 +62,16 @@
         <label><span class="row">빈틈 채우기 <output id="oFill"></output></span>
         <input id="fill" type="range" min="0" max="1.5" step="0.1" value="1"></label>
         <label><span class="row">초점 흐림 (피사계 심도) <output id="oDof"></output></span>
-        <input id="dof" type="range" min="0" max="1" step="0.05" value="0.5"></label>
+        <input id="dof" type="range" min="0" max="1" step="0.05" value="0"></label>
       </div></details>
       <details class="grp" open><summary>색 (RGB)</summary><div class="gbody">
+        <span class="density-note">기본은 원본 RGB·밝기 유지. 보정·반전·번짐은 선택 효과이며 점 배치와 깊이를 바꾸지 않습니다.</span>
         <label><span class="row">색 반영 (RGB) <output id="oColor"></output></span>
-        <input id="color" type="range" min="0" max="1" step="0.05" value="0.85"></label>
+        <input id="color" type="range" min="0" max="1" step="0.05" value="1"></label>
         <label><span class="row">색 보정 (종이·조명색 빼기) <output id="oWb"></output></span>
-        <input id="wb" type="range" min="0" max="1" step="0.05" value="0.7"></label>
+        <input id="wb" type="range" min="0" max="1" step="0.05" value="0"></label>
         <label><span class="row">채도 <output id="oSat"></output></span>
-        <input id="sat" type="range" min="0.4" max="3" step="0.05" value="1.4"></label>
+        <input id="sat" type="range" min="0.4" max="3" step="0.05" value="1"></label>
         <label><span class="row">RGB 분리 (색수차) <output id="oSplit"></output></span>
         <input id="split" type="range" min="0" max="1" step="0.05" value="0"></label>
       </div></details>
@@ -79,7 +80,9 @@
       <button class="b" id="bToggle">흩어지기</button>
       <button class="b" id="bLine">선 분석 보기</button>
       <button class="b" id="bView">시점 초기화</button>
-      <button class="b" id="bTone">명암 반전: 꺼짐</button>
+      <button class="b" id="bOriginal">원본 색 복원</button>
+      <button class="b" id="bTone" aria-pressed="false">색 반전: 꺼짐</button>
+      <button class="b" id="bBackground" aria-pressed="false">배경: 밝게</button>
       <button class="b" id="bLimit" aria-pressed="false" title="상하좌우 360° 자유 회전 중입니다. 클릭하면 회전 범위를 제한합니다.">회전: 360° 자유</button>
       <button class="b" id="bMap">깊이맵 숨기기</button>
       <button class="b" id="bInvert">깊이 반전</button>
@@ -104,6 +107,6 @@
 </div>
 
 <script defer src="./assets/artworks/catalog.js"></script>
-<script defer src="./dist/gallery.js?v=density-1"></script>
+<script defer src="./dist/gallery.js?v=source-color-1"></script>
 </body>
 </html>

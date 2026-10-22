@@ -15,11 +15,11 @@ const S = {
   cur: -1, mode: 'scatter', seq: 0,
   n: 0, nBase: 0, nSkirt: 0, aspect: 1, boxFrac: 0.88,
   yaw: 0, pitch: 0, vyaw: 0, vpitch: 0, zoom: 1, zoomT: 1,
-  dragging: false, interacted: false, sway: !REDUCED_MOTION, lastMove: 0, invert: false, limit: false,
+  dragging: false, interacted: false, sway: !REDUCED_MOTION, lastMove: 0, invert: false, limit: false, darkBackground: false,
   mouse: { on: false, x: 0, y: 0, pow: 0 },
   sel: -1, selPow: 0, lockId: -1, lineView: false, pan: { x: 0, y: 0, z: 0 }, panT: { x: 0, y: 0, z: 0 }, nLine: 0,
   endTime: 0, statusPending: false, dirty: true, err: null, density: 1,
-  params: { count: 45000, density: 1, contrast: 1.2, gamma: 1.0, size: 0.85, glow: 0.3, depth: 0.9, fill: 1.0, dof: 0.5, invertTone: false, relief: 0.5, tone: 0.3, unify: 0.3, sep: 0.4, detail: 1.0, lineTone: 0.6, lineDots: 0.35, localContrast: 0.6, color: 0.85, sat: 1.4, split: 0, wb: 0.7 }
+  params: { count: 45000, density: 1, contrast: 1.2, gamma: 1.0, size: 0.85, glow: 0, depth: 0.9, fill: 1.0, dof: 0, invertTone: false, samplingInvert: false, relief: 0.5, tone: 0.3, unify: 0.3, sep: 0.4, detail: 1.0, lineTone: 0.6, lineDots: 0.35, localContrast: 0.6, color: 1, sat: 1, split: 0, wb: 0 }
 };
 
 // =====================================================================
@@ -92,7 +92,7 @@ function densityOffset(phase, noise, spread, out = [0, 0, 0]) {
 }
 const VS = `
 attribute vec3 a_from; attribute vec3 a_to; attribute vec4 a_anim; attribute vec4 a_misc; attribute vec3 a_col;
-uniform float u_time, u_form, u_pass, u_size, u_glow, u_zoom, u_dpr, u_dof, u_mpow, u_sel, u_selpow, u_line, u_lineview, u_color, u_sat, u_chan, u_split, u_spread;
+uniform float u_time, u_form, u_pass, u_size, u_glow, u_zoom, u_dpr, u_dof, u_mpow, u_sel, u_selpow, u_line, u_lineview, u_color, u_sat, u_chan, u_split, u_spread, u_invertColor, u_flat, u_darkBackground;
 uniform vec3 u_pan;
 uniform vec2 u_half; uniform vec2 u_mouse; uniform vec4 u_cam;
 varying float v_a; varying float v_pass; varying float v_soft; varying vec3 v_col; varying float v_chan;
@@ -126,7 +126,12 @@ void main() {
   float typ = floor(a_misc.w / 256.0 + 0.001);   // 1 = 윤곽선 점
   float seg = a_misc.w - typ*256.0;
   gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; v_a = 0.0; v_pass = u_pass; v_soft = 0.0; v_chan = u_chan;
-  v_col = clamp(vec3(1.0) + (u_color*u_sat)*(a_col - vec3(1.0)), 0.0, 1.0);   // 그림의 색(색상/채도)을 점에 입힌다
+  // RGB의 밝기를 유지한다. 채도 1·색 반영 1·반전 꺼짐이면 입력 점 색 그대로다.
+  float sourceLuma = dot(a_col, vec3(0.2126, 0.7152, 0.0722));
+  vec3 saturated = clamp(vec3(sourceLuma) + (a_col - vec3(sourceLuma)) * u_sat, 0.0, 1.0);
+  v_col = mix(vec3(sourceLuma), saturated, u_color);
+  if (u_invertColor > 0.5) v_col = vec3(1.0) - v_col;
+  if (u_flat > 0.5) v_col = u_darkBackground > 0.5 ? vec3(0.95) : vec3(0.12);
   if (den < 200.0) return;
   float f = F / den;
   vec2 s = vec2(x1, y2) * f * u_zoom;
@@ -140,10 +145,11 @@ void main() {
   float fade = clamp(0.8 + (f - 1.0)*1.6, 0.2, 1.1);
   float defocus = u_dof * clamp(abs(z2) / 450.0, 0.0, 1.0);   // 초점면(그림 평면)에서 멀수록 흐림
   if (u_pass < 0.5) {
-    float r = (0.45 + 0.85*l) * u_size * pf * (1.0 + defocus*1.1);
+    float r = 0.95 * u_size * pf * (1.0 + defocus*1.1);
     gl_Position = vec4(s.x / u_half.x, -s.y / u_half.y, 0.0, 1.0);
     gl_PointSize = max(2.0, 2.0*r*u_dpr + 1.5);
-    v_a = min(1.0, (0.35 + 0.65*l) * fade) * a_misc.y * (1.0 - 0.38*defocus);
+    // 기본 점의 검정·회색도 같은 불투명도로 그린다. 밝기 이중 적용을 막는다.
+    v_a = a_misc.y * (1.0 - 0.38*defocus);
     v_soft = defocus;
   } else {
     bool ok = u_form > 0.5 ? l >= 0.5 : f >= 1.05;
@@ -155,7 +161,7 @@ void main() {
   }
   if (typ > 0.5) v_a *= u_line;                  // 윤곽선 점은 슬라이더로 세기 조절
   if (u_lineview > 0.5) {                        // 선 분석 보기: 추출한 선만 또렷하게
-    if (typ > 0.5) { v_a = (u_pass < 0.5 ? 0.95 : 0.35*u_glow) * a_misc.y; if (u_pass < 0.5) gl_PointSize *= 1.2; }
+    if (typ > 0.5) { v_col = u_darkBackground > 0.5 ? vec3(1.0) : vec3(0.08); v_a = (u_pass < 0.5 ? 0.95 : 0.35*u_glow) * a_misc.y; if (u_pass < 0.5) gl_PointSize *= 1.2; }
     else v_a *= 0.08;
   }
   if (u_sel >= 0.0 && u_selpow > 0.001) {      // 선택한 구성요소만 또렷하게, 나머지는 흐리게
@@ -190,7 +196,7 @@ function initGL() {
   ['a_from', 'a_to', 'a_anim', 'a_misc', 'a_col'].forEach((n, i) => gl.bindAttribLocation(GLP, i, n));
   gl.linkProgram(GLP);
   if (!gl.getProgramParameter(GLP, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(GLP));
-  ['u_time','u_form','u_pass','u_size','u_glow','u_zoom','u_dpr','u_dof','u_mpow','u_sel','u_selpow','u_line','u_lineview','u_color','u_sat','u_chan','u_split','u_spread','u_pan','u_half','u_mouse','u_cam'].forEach(n => GLU[n] = gl.getUniformLocation(GLP, n));
+  ['u_time','u_form','u_pass','u_size','u_glow','u_zoom','u_dpr','u_dof','u_mpow','u_sel','u_selpow','u_line','u_lineview','u_color','u_sat','u_chan','u_split','u_spread','u_invertColor','u_flat','u_darkBackground','u_pan','u_half','u_mouse','u_cam'].forEach(n => GLU[n] = gl.getUniformLocation(GLP, n));
   ['from','to','anim','misc','col'].forEach(k => GLB[k] = gl.createBuffer());
   gl.enable(gl.BLEND);
   return true;
@@ -255,12 +261,12 @@ function grayFromImage(img) {
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d', { willReadFrequently: true });
   g.imageSmoothingQuality = 'high';
+  // 투명 PNG는 흰 바탕에 합성한다. 정상적인 검정 이미지를 읽기 실패로 오인하지 않는다.
+  g.fillStyle = '#fff'; g.fillRect(0, 0, w, h);
   g.drawImage(img, 0, 0, w, h);
   const data = g.getImageData(0, 0, w, h).data;
   const lum = new Float32Array(w*h);
-  let sum = 0;
-  for (let i=0;i<w*h;i++) { lum[i] = (0.2126*data[i*4] + 0.7152*data[i*4+1] + 0.0722*data[i*4+2]) / 255; sum += lum[i]; }
-  if (sum < 1e-3) throw new Error('이 브라우저가 이미지 픽셀 읽기를 막고 있어요');
+  for (let i=0;i<w*h;i++) lum[i] = (0.2126*data[i*4] + 0.7152*data[i*4+1] + 0.0722*data[i*4+2]) / 255;
   const ck = Math.min(1, 280/Math.max(w, h)), cw = Math.max(4, Math.round(w*ck)), ch = Math.max(4, Math.round(h*ck));
   const c2 = document.createElement('canvas'); c2.width = cw; c2.height = ch;
   const g2 = c2.getContext('2d', { willReadFrequently: true }); g2.imageSmoothingQuality = 'high'; g2.drawImage(c, 0, 0, cw, ch);
@@ -557,7 +563,8 @@ function analyzeImage(gray, rotation, p) {
     for (let i=0;i<w*h;i++) lum[i] = clamp(lum[i] + p.localContrast*1.3*(lum[i] - lg[i]), 0, 1);
   }
   const lv = normalizeRange(lum, 0.02, 0.98);
-  if (p.invertTone) for (let i=0;i<w*h;i++) lv[i] = 1 - lv[i];
+  // 점 배치용 중요도만 반전할 수 있다. 표시 RGB와 원본 명암·깊이에는 적용하지 않는다.
+  if (p.samplingInvert) for (let i=0;i<w*h;i++) lv[i] = 1 - lv[i];
   const out = new Float32Array(w*h);
   for (let i=0;i<w*h;i++) out[i] = Math.pow(clamp((lv[i] - 0.5)*p.contrast + 0.5, 0, 1), p.gamma);
   // 선 분석과 디테일 지도 (원본 명암 기준, 회전별로 캐시)
@@ -571,22 +578,25 @@ function analyzeImage(gray, rotation, p) {
   }
   const an = gray._an[akey];
   if (p.lineTone > 0) {   // 선이 점 밀도에서도 또렷하게: 어두운 선은 파고, 반전 모드에서는 밝게 돋운다
-    const sg = p.invertTone ? 1 : -1, kk = p.lineTone*0.85, M = an.lines.mask;
+    const sg = p.samplingInvert ? 1 : -1, kk = p.lineTone*0.85, M = an.lines.mask;
     for (let i=0;i<w*h;i++) out[i] = clamp(out[i] + sg*kk*M[i], 0, 1);
   }
   let d0;
   if (gray.depth) {
     d0 = normalizeRange(rotateGray({ w: gray.w, h: gray.h, lum: gray.depth }, rot).lum, 0.01, 0.99);
     // 모델 깊이의 경계를 그림 자체의 경계에 맞춘다 (경계가 번져 보이는 문제 완화)
-    d0 = normalizeRange(guidedFilter(out, d0, w, h, Math.max(2, Math.round(0.007*Math.max(w, h))), 0.004), 0.003, 0.997);
+    d0 = normalizeRange(guidedFilter(src, d0, w, h, Math.max(2, Math.round(0.007*Math.max(w, h))), 0.004), 0.003, 0.997);
   } else {
-    const big = boxBlur(out, w, h, 12), small = boxBlur(out, w, h, 3), dr = new Float32Array(w*h);
+    const big = boxBlur(src, w, h, 12), small = boxBlur(src, w, h, 3), dr = new Float32Array(w*h);
     for (let i=0;i<w*h;i++) dr[i] = 0.7*big[i] + 0.3*small[i];
     d0 = normalizeRange(dr, 0.02, 0.98);
   }
   const dens = new Float32Array(w*h), dk = p.detail;
-  for (let i=0;i<w*h;i++) dens[i] = densityOf(out[i])*(1 + dk*an.detail[i]);   // 디테일이 많은 곳에 점을 더 몰아준다
-  const map = { rgb: gray.rgb ? rotateRGB(gray.rgb, rot) : null, w, h, lum: out, dens, detail: an.detail, lines: an.lines, depth0: d0, depthReal: !!gray.depth, bands: null, segIds: null, segStat: null, gmed: 0.5 };
+  let densitySum = 0;
+  for (let i=0;i<w*h;i++) { dens[i] = densityOf(out[i])*(1 + dk*an.detail[i]); densitySum += dens[i]; }
+  // 완전한 검정처럼 중요도가 전부 0인 입력도 원본 색을 가진 점으로 표시한다.
+  if (densitySum < 1e-6) dens.fill(1);
+  const map = { rgb: gray.rgb ? rotateRGB(gray.rgb, rot) : null, w, h, lum: new Float32Array(src), samplingLum: out, dens, detail: an.detail, lines: an.lines, depth0: d0, depthReal: !!gray.depth, bands: null, segIds: null, segStat: null, gmed: 0.5 };
   if (gray.segIds) { map.segIds = rotateIds(gray.segIds, gray.w, gray.h, rot).ids; computeSegStats(map); }
   map.depth = composeDepth(map, p);
   return map;
@@ -816,6 +826,41 @@ function buildSkirts(map, pts, cap) {
 // =====================================================================
 //  목표 점 집합 (작품 / 제목 글자) 만들기
 // =====================================================================
+const SOURCE_COLOR_DEFAULTS = Object.freeze({ invertTone: false, color: 1, sat: 1, wb: 0, glow: 0, dof: 0, split: 0 });
+function sourceColorTune(t) {
+  // 구형 preset.invertTone은 먹선 배치의 극성으로만 읽고 화면 반전으로 복원하지 않는다.
+  return { contrast: 1.2, gamma: 1, size: 0.85, depth: 0.9, fill: 1, relief: 0.5, tone: 0.3,
+    unify: 0.3, sep: 0.4, detail: 1, lineTone: 0.6, lineDots: 0.35, localContrast: 0.6,
+    ...(t || {}), samplingInvert: !!t?.invertTone, ...SOURCE_COLOR_DEFAULTS };
+}
+function writeSourceColors(set, map, wb = 0) {
+  const R = map.rgb;
+  let fr = 1, fg = 1, fb = 1;
+  if (R && wb > 0) {
+    let sr = 0, sg = 0, sb = 0, count = 0;
+    for (let i=0;i<R.w*R.h;i++) {
+      const r = R.data[3*i], g = R.data[3*i+1], b = R.data[3*i+2];
+      if (Math.max(r,g,b) > 80) { sr += r; sg += g; sb += b; count++; }
+    }
+    if (count) {
+      const avg = (sr+sg+sb)/3, k = clamp(wb,0,1);
+      fr = Math.pow(avg/Math.max(1,sr),k); fg = Math.pow(avg/Math.max(1,sg),k); fb = Math.pow(avg/Math.max(1,sb),k);
+    }
+  }
+  const colors = new Float32Array(set.n*3);
+  for (let o=0;o<set.n;o++) {
+    if (R) {
+      const x = clamp(Math.floor(set.nx[o]*R.w),0,R.w-1), y = clamp(Math.floor(set.ny[o]*R.h),0,R.h-1), q = (y*R.w+x)*3;
+      // 원본 RGB의 밝기를 버리거나 검정을 흰색으로 바꾸지 않는다. 보정 0이면 입력값 / 255 그대로다.
+      colors[3*o] = clamp(R.data[q]/255*fr,0,1); colors[3*o+1] = clamp(R.data[q+1]/255*fg,0,1); colors[3*o+2] = clamp(R.data[q+2]/255*fb,0,1);
+    } else {
+      const x = clamp(Math.floor(set.nx[o]*map.w),0,map.w-1), y = clamp(Math.floor(set.ny[o]*map.h),0,map.h-1), v = map.lum[y*map.w+x];
+      colors[3*o] = colors[3*o+1] = colors[3*o+2] = v;
+    }
+  }
+  set.col = colors;
+  return colors;
+}
 function computeArtwork(i, reuse) {
   const a = ART[i];
   if (reuse && a.cache) return a.cache;
@@ -861,21 +906,7 @@ function makeArtworkSet(i) {
     else if (ld.length) putLine(o, ld[(Math.random()*ld.length)|0]);
     else { const s = (Math.random()*m)|0; put(o, pts.x[s], pts.y[s], pts.l[s], pts.d[s], 1, pts.s[s]); }
   }
-  set.col = new Float32Array(n*3).fill(1);
-  const R = map.rgb;
-  if (R) {
-    // 화이트밸런스: 종이/조명 전체의 색 기운을 빼야 안료 고유의 색(파랑, 빨강)이 살아난다
-    let sr = 0, sg = 0, sb = 0, cn = 0;
-    for (let i=0;i<R.w*R.h;i++) { const r = R.data[3*i], g = R.data[3*i+1], b = R.data[3*i+2]; if (Math.max(r, g, b) > 80) { sr += r; sg += g; sb += b; cn++; } }
-    const avg = (sr + sg + sb)/3, gr = cn ? avg/Math.max(1, sr) : 1, gg = cn ? avg/Math.max(1, sg) : 1, gb = cn ? avg/Math.max(1, sb) : 1, wbk = S.params.wb;
-    const fr = Math.pow(gr, wbk), fg = Math.pow(gg, wbk), fb = Math.pow(gb, wbk);
-    for (let o=0;o<n;o++) {
-      const cx = Math.min(R.w-1, (set.nx[o]*R.w)|0), cy = Math.min(R.h-1, (set.ny[o]*R.h)|0), q = (cy*R.w + cx)*3;
-      const r = Math.min(1, R.data[q]/255*fr), g = Math.min(1, R.data[q+1]/255*fg), b = Math.min(1, R.data[q+2]/255*fb), mx = Math.max(r, g, b, 1e-3);
-      const k = clamp((mx - 0.08)/0.2, 0, 1);               // 아주 어두운 곳은 색을 빼서 잡음 방지
-      set.col[3*o] = 1 + k*(r/mx - 1); set.col[3*o+1] = 1 + k*(g/mx - 1); set.col[3*o+2] = 1 + k*(b/mx - 1);
-    }
-  }
+  writeSourceColors(set, map, S.params.wb);
   return set;
 }
 // 작품 제목 글자를 점으로 (캔버스에 글자를 그린 뒤 같은 점 찍기 알고리즘 사용)
@@ -973,11 +1004,48 @@ async function rebuild(keepMode, reuse) {
 }
 
 // ---------- 작품 선택 연출: (흩어진 상태) 제목 글자 -> 그림 / (모인 상태) 바로 변형 ----------
-function setTone(on) { S.params.invertTone = !!on; document.getElementById('bTone').textContent = '명암 반전: ' + (on ? '켜짐' : '꺼짐'); }
+function setTone(on) {
+  S.params.invertTone = !!on;
+  const button = document.getElementById('bTone');
+  button.textContent = '색 반전: ' + (on ? '켜짐' : '꺼짐'); button.setAttribute('aria-pressed', String(!!on));
+  S.dirty = true;
+}
+function setStageBackground(dark) {
+  S.darkBackground = !!dark; stage.classList.toggle('dark-background', S.darkBackground);
+  const button = document.getElementById('bBackground');
+  button.textContent = '배경: ' + (dark ? '어둡게' : '밝게'); button.setAttribute('aria-pressed', String(S.darkBackground));
+  S.dirty = true;
+}
 function applyTune(t) {
-  setTone(!!(t && t.invertTone));
-  if (!t) return;
-  for (const [k, v] of Object.entries(t)) { if (k === 'invertTone') continue; const el = document.getElementById(k); if (!el) continue; el.value = v; S.params[k] = +v; el.dispatchEvent(new Event('x-sync')); }
+  const tune = sourceColorTune(t);
+  S.params.samplingInvert = tune.samplingInvert;
+  S.lineView = false;
+  const lineButton = document.getElementById('bLine'); if (lineButton) lineButton.textContent = '선 분석 보기';
+  setTone(false);
+  for (const [k, v] of Object.entries(tune)) {
+    if (k === 'invertTone' || k === 'samplingInvert') continue;
+    const el = document.getElementById(k); if (!el) continue;
+    el.value = v; S.params[k] = +v; el.dispatchEvent(new Event('x-sync'));
+  }
+}
+function refreshSourceColors() {
+  const a = ART[S.cur];
+  if (!a?.cache || S.flat) return;
+  const set = { n: S.n, nx: S.nx, ny: S.ny };
+  writeSourceColors(set, a.cache.map, S.params.wb); S.col.set(set.col); uploadStatic();
+  S.dirty = true;
+}
+function restoreSourceColors() {
+  S.lineView = false;
+  const lineButton = document.getElementById('bLine'); if (lineButton) lineButton.textContent = '선 분석 보기';
+  setTone(false);
+  for (const [k,v] of Object.entries(SOURCE_COLOR_DEFAULTS)) {
+    if (k === 'invertTone') continue;
+    S.params[k] = v; const el = document.getElementById(k);
+    if (el) { el.value = v; el.dispatchEvent(new Event('x-sync')); }
+  }
+  refreshSourceColors();
+  S.dirty = true;
 }
 async function playArtwork(idx) {
   const token = ++S.seq;
@@ -1011,6 +1079,8 @@ async function playArtwork(idx) {
       }
       applyTargets(set, 'form', titled ? 'morph' : 'gather'); setStatus('모이는 중');
     }
+    // 제목 연출 중 바뀐 색 보정도 실제 작품 점에 반영한다.
+    refreshSourceColors();
     const wait = Math.max(0, S.endTime - performance.now());
     setTimeout(() => { if (token === S.seq) showCaption(true); }, Math.max(600, wait - 500));
   } catch (e) { S.err = e.message; statusEl.textContent = '오류: ' + e.message; }
@@ -1121,6 +1191,9 @@ function frame() {
   gl.uniform1f(GLU.u_line, S.params.lineDots);
   gl.uniform1f(GLU.u_color, S.params.color);
   gl.uniform1f(GLU.u_sat, S.params.sat);
+  gl.uniform1f(GLU.u_invertColor, S.params.invertTone ? 1 : 0);
+  gl.uniform1f(GLU.u_flat, S.flat ? 1 : 0);
+  gl.uniform1f(GLU.u_darkBackground, S.darkBackground ? 1 : 0);
   gl.uniform1f(GLU.u_split, S.params.split*3.0);
   gl.uniform1f(GLU.u_chan, 0);
   gl.uniform1f(GLU.u_lineview, S.lineView ? 1 : 0);
@@ -1404,6 +1477,7 @@ function bindRange(id, outId, key, fmt) {
   el.addEventListener('input', () => {
     S.params[key] = +el.value; show();
     if (key === 'density' || key === 'size' || key === 'glow' || key === 'dof' || key === 'lineDots' || key === 'color' || key === 'sat' || key === 'split') { S.dirty = true; return; }
+    if (key === 'wb') { refreshSourceColors(); return; }
     if (key === 'depth') { retargetDepth(); return; }
     if (key === 'relief' || key === 'tone' || key === 'unify' || key === 'sep') { scheduleDepthRefresh(); return; }
     scheduleRebuild(key === 'fill' || key === 'wb');
@@ -1441,7 +1515,10 @@ document.getElementById('list').addEventListener('click', e => {
 });
 document.getElementById('bToggle').addEventListener('click', () => startMove(S.mode === 'form' ? 'scatter' : 'form'));
 document.getElementById('bRotate').addEventListener('click', () => { if (S.cur < 0) return; ART[S.cur].rotation = (ART[S.cur].rotation+1) % 4; rebuild(true, false); });
-document.getElementById('bTone').addEventListener('click', () => { setTone(!S.params.invertTone); rebuild(true, false); });
+// 색 반전과 배경은 표시만 바꾼다. 점 위치·중요도·깊이는 다시 계산하지 않는다.
+document.getElementById('bTone').addEventListener('click', () => setTone(!S.params.invertTone));
+document.getElementById('bOriginal').addEventListener('click', () => restoreSourceColors());
+document.getElementById('bBackground').addEventListener('click', () => setStageBackground(!S.darkBackground));
 document.getElementById('bInvert').addEventListener('click', () => { S.invert = !S.invert; retargetDepth(); });
 document.getElementById('bLimit').addEventListener('click', () => setRotationMode(!S.limit));
 document.getElementById('bUpload').addEventListener('click', () => document.getElementById('file').click());

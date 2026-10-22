@@ -16,7 +16,7 @@ function densityOffset(phase, noise, spread, out = [0, 0, 0]) {
 }
 const VS = `
 attribute vec3 a_from; attribute vec3 a_to; attribute vec4 a_anim; attribute vec4 a_misc; attribute vec3 a_col;
-uniform float u_time, u_form, u_pass, u_size, u_glow, u_zoom, u_dpr, u_dof, u_mpow, u_sel, u_selpow, u_line, u_lineview, u_color, u_sat, u_chan, u_split, u_spread;
+uniform float u_time, u_form, u_pass, u_size, u_glow, u_zoom, u_dpr, u_dof, u_mpow, u_sel, u_selpow, u_line, u_lineview, u_color, u_sat, u_chan, u_split, u_spread, u_invertColor, u_flat, u_darkBackground;
 uniform vec3 u_pan;
 uniform vec2 u_half; uniform vec2 u_mouse; uniform vec4 u_cam;
 varying float v_a; varying float v_pass; varying float v_soft; varying vec3 v_col; varying float v_chan;
@@ -50,7 +50,12 @@ void main() {
   float typ = floor(a_misc.w / 256.0 + 0.001);   // 1 = 윤곽선 점
   float seg = a_misc.w - typ*256.0;
   gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; v_a = 0.0; v_pass = u_pass; v_soft = 0.0; v_chan = u_chan;
-  v_col = clamp(vec3(1.0) + (u_color*u_sat)*(a_col - vec3(1.0)), 0.0, 1.0);   // 그림의 색(색상/채도)을 점에 입힌다
+  // RGB의 밝기를 유지한다. 채도 1·색 반영 1·반전 꺼짐이면 입력 점 색 그대로다.
+  float sourceLuma = dot(a_col, vec3(0.2126, 0.7152, 0.0722));
+  vec3 saturated = clamp(vec3(sourceLuma) + (a_col - vec3(sourceLuma)) * u_sat, 0.0, 1.0);
+  v_col = mix(vec3(sourceLuma), saturated, u_color);
+  if (u_invertColor > 0.5) v_col = vec3(1.0) - v_col;
+  if (u_flat > 0.5) v_col = u_darkBackground > 0.5 ? vec3(0.95) : vec3(0.12);
   if (den < 200.0) return;
   float f = F / den;
   vec2 s = vec2(x1, y2) * f * u_zoom;
@@ -64,10 +69,11 @@ void main() {
   float fade = clamp(0.8 + (f - 1.0)*1.6, 0.2, 1.1);
   float defocus = u_dof * clamp(abs(z2) / 450.0, 0.0, 1.0);   // 초점면(그림 평면)에서 멀수록 흐림
   if (u_pass < 0.5) {
-    float r = (0.45 + 0.85*l) * u_size * pf * (1.0 + defocus*1.1);
+    float r = 0.95 * u_size * pf * (1.0 + defocus*1.1);
     gl_Position = vec4(s.x / u_half.x, -s.y / u_half.y, 0.0, 1.0);
     gl_PointSize = max(2.0, 2.0*r*u_dpr + 1.5);
-    v_a = min(1.0, (0.35 + 0.65*l) * fade) * a_misc.y * (1.0 - 0.38*defocus);
+    // 기본 점의 검정·회색도 같은 불투명도로 그린다. 밝기 이중 적용을 막는다.
+    v_a = a_misc.y * (1.0 - 0.38*defocus);
     v_soft = defocus;
   } else {
     bool ok = u_form > 0.5 ? l >= 0.5 : f >= 1.05;
@@ -79,7 +85,7 @@ void main() {
   }
   if (typ > 0.5) v_a *= u_line;                  // 윤곽선 점은 슬라이더로 세기 조절
   if (u_lineview > 0.5) {                        // 선 분석 보기: 추출한 선만 또렷하게
-    if (typ > 0.5) { v_a = (u_pass < 0.5 ? 0.95 : 0.35*u_glow) * a_misc.y; if (u_pass < 0.5) gl_PointSize *= 1.2; }
+    if (typ > 0.5) { v_col = u_darkBackground > 0.5 ? vec3(1.0) : vec3(0.08); v_a = (u_pass < 0.5 ? 0.95 : 0.35*u_glow) * a_misc.y; if (u_pass < 0.5) gl_PointSize *= 1.2; }
     else v_a *= 0.08;
   }
   if (u_sel >= 0.0 && u_selpow > 0.001) {      // 선택한 구성요소만 또렷하게, 나머지는 흐리게
@@ -114,7 +120,7 @@ function initGL() {
   ['a_from', 'a_to', 'a_anim', 'a_misc', 'a_col'].forEach((n, i) => gl.bindAttribLocation(GLP, i, n));
   gl.linkProgram(GLP);
   if (!gl.getProgramParameter(GLP, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(GLP));
-  ['u_time','u_form','u_pass','u_size','u_glow','u_zoom','u_dpr','u_dof','u_mpow','u_sel','u_selpow','u_line','u_lineview','u_color','u_sat','u_chan','u_split','u_spread','u_pan','u_half','u_mouse','u_cam'].forEach(n => GLU[n] = gl.getUniformLocation(GLP, n));
+  ['u_time','u_form','u_pass','u_size','u_glow','u_zoom','u_dpr','u_dof','u_mpow','u_sel','u_selpow','u_line','u_lineview','u_color','u_sat','u_chan','u_split','u_spread','u_invertColor','u_flat','u_darkBackground','u_pan','u_half','u_mouse','u_cam'].forEach(n => GLU[n] = gl.getUniformLocation(GLP, n));
   ['from','to','anim','misc','col'].forEach(k => GLB[k] = gl.createBuffer());
   gl.enable(gl.BLEND);
   return true;

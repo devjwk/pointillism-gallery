@@ -34,7 +34,10 @@
   #ctx a:focus-visible { outline:1px solid #aaa; outline-offset:3px; }
   .credit { font-size:10px; color:#555; line-height:1.5; margin:0; }
   main { position:relative; overflow:hidden; cursor:grab; touch-action:none; user-select:none; contain:layout paint; outline:none;
-    background: radial-gradient(ellipse at 50% 45%, #1a1a1a 0%, #0a0a0a 55%, #000 100%); }
+    color:#262626; background:#e5e5e5; }
+  main.dark-background { color:var(--fg); background:radial-gradient(ellipse at 50% 45%, #1a1a1a 0%, #0a0a0a 55%, #000 100%); }
+  main.dark-background #caption p, main.dark-background #status, main.dark-background #hint { color:#aaa; }
+  main.dark-background #fps { color:#888; }
   main.grabbing { cursor:grabbing; }
   canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
   #caption { position:absolute; left:28px; top:24px; pointer-events:none; opacity:0; transition:opacity .9s ease; max-width:60%; }
